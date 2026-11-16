@@ -1,0 +1,27 @@
+# PayStream – Project Progress
+
+## Milestone 1: Kafka-Based Payment Ingestion
+
+1. Created PayStream, a system that simulates real-world bank payment transactions.
+2. Used Python to generate fake payment events.
+3. Generated payment lifecycle events: initiated, status updated, completed or failed.
+4. Set up Apache Kafka using Docker Compose.
+5. Created four Kafka topics: payment-events, retry, DLQ and audit.
+6. Built a Kafka producer to send payment events to Kafka.
+7. Used transaction_id as the Kafka message key.
+8. Added simulation of duplicate, invalid and late-arriving events.
+9. Built a Kafka consumer to read and validate incoming messages.
+10. Added automated tests and documentation for the ingestion pipeline.
+
+## Milestone 2: Real-Time Stream Processing Using Spark
+
+1. Integrated Apache Spark Structured Streaming with Kafka.
+2. Built a Spark application to continuously read payment events from Kafka.
+3. Converted incoming JSON messages into structured data.
+4. Added validation to identify incorrect or incomplete payment events.
+5. Implemented duplicate event detection using event_id.
+6. Added watermarking to handle late-arriving events.
+7. Routed invalid events to the Dead Letter Queue (DLQ) topic.
+8. Created separate Kafka topics for processed and late-arriving events.
+9. Added checkpointing to save streaming progress and support recovery.
+10. Added tests and documentation for the stream-processing pipeline.
