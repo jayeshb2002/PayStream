@@ -1,6 +1,6 @@
-"""PayStream Milestone 2: Kafka -> Spark Structured Streaming -> Kafka.
+"""PayStream Kafka -> Spark Structured Streaming -> Kafka pipeline.
 
-Run from the PayStream repository root with spark-submit (see README_M2.md).
+Run from the PayStream repository root with spark-submit.
 The job intentionally uses two streaming queries so malformed records can be
 routed independently from valid, deduplicated records.
 """

@@ -3,5 +3,6 @@
 __pycache__/
 *.py[cod]
 .env
+.env.*
 .DS_Store
 data/checkpoints/

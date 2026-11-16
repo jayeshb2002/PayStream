@@ -33,5 +33,27 @@ services:
       start_period: 20s
     restart: unless-stopped
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: paystream-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-paystream}
+      POSTGRES_USER: ${POSTGRES_USER:-paystream}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-paystream_dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paystream} -d ${POSTGRES_DB:-paystream}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
 volumes:
   kafka_data:
+  postgres_data:
