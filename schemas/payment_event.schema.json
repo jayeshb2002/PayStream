@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PayStreamPaymentEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "transaction_id",
+    "event_type",
+    "payment_rail",
+    "amount_minor",
+    "currency",
+    "sender_bank",
+    "receiver_bank",
+    "status",
+    "event_time",
+    "ingestion_time",
+    "producer_id",
+    "sequence_number",
+    "schema_version"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "transaction_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "enum": [
+        "PAYMENT_INITIATED",
+        "PAYMENT_STATUS_UPDATED",
+        "PAYMENT_COMPLETED",
+        "PAYMENT_FAILED"
+      ]
+    },
+    "payment_rail": {
+      "enum": [
+        "UPI",
+        "IMPS",
+        "RUPAY",
+        "NEFT"
+      ]
+    },
+    "amount_minor": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Amount in paise for INR"
+    },
+    "currency": {
+      "const": "INR"
+    },
+    "sender_bank": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 32
+    },
+    "receiver_bank": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 32
+    },
+    "status": {
+      "enum": [
+        "INITIATED",
+        "PROCESSING",
+        "SUCCESS",
+        "FAILED"
+      ]
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sequence_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}
