@@ -1,21 +1,51 @@
-# PayStream — Milestone 1: Kafka Ingestion Foundation
+# PayStream
 
-Local payment-event ingestion using Apache Kafka (KRaft), Python, Pydantic and
-the Confluent Kafka client.
+PayStream is a local payment-event streaming project built around Apache Kafka, Python, Pydantic, and Spark Structured Streaming. It generates synthetic payment workflows, validates event schemas, and demonstrates how to route valid, invalid, and late-arriving records through Kafka topics.
+
+The project is designed for local experimentation and end-to-end demos rather than production deployment.
+
+## What this project does
+
+- Generates realistic payment lifecycles for a transaction
+- Publishes lifecycle events to Kafka
+- Validates payloads against a strict schema using Pydantic
+- Simulates duplicates, malformed payloads, and late event timestamps
+- Exposes a Kafka consumer for inspection and debugging
+- Includes a Spark-based streaming processor for validation, watermarking, and DLQ-style routing
+
+## Project structure
+
+- [src/generator.py](src/generator.py) — builds synthetic payment lifecycles
+- [src/models.py](src/models.py) — Pydantic event model and validation rules
+- [src/producer.py](src/producer.py) — writes events to Kafka
+- [src/consumer.py](src/consumer.py) — reads and inspects Kafka messages
+- [src/stream_processor.py](src/stream_processor.py) — Spark job for streaming validation and routing
+- [src/config.py](src/config.py) — Kafka configuration defaults
+- [schemas/payment_event.schema.json](schemas/payment_event.schema.json) — JSON schema for payment events
+- [tests](tests) — validation and lifecycle tests
 
 ## Prerequisites
-- macOS
-- Docker Desktop running
-- Python 3.11 or 3.12
 
-Check:
+Before you begin, make sure you have:
+
+- macOS or Linux environment
+- Docker Desktop running
+- Python 3.11+
+- Java installed for Spark (required by the streaming processor)
+
+Check the environment:
+
 ```bash
 docker --version
 docker compose version
 python3 --version
+java -version
 ```
 
-## 1. Start Kafka and create topics
+## Local setup
+
+### 1. Start Kafka
+
 ```bash
 docker compose up -d
 docker compose ps
@@ -23,10 +53,13 @@ chmod +x scripts/create_topics.sh
 ./scripts/create_topics.sh
 ```
 
-Kafka bootstrap address from your Mac: `localhost:29092`.
-Kafka address inside Docker: `kafka:9092`.
+This starts the local Kafka cluster and creates the expected topics. The default bootstrap server is:
 
-## 2. Create Python environment
+- Local machine: `localhost:29092`
+- Inside Docker: `kafka:9092`
+
+### 2. Create the Python environment
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -34,52 +67,84 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 3. Generate transactions
-Each transaction emits three lifecycle events: initiated, processing, and
-completed or failed.
+## Generating payment events
+
+Each transaction emits a short lifecycle with ordered events such as:
+
+- `PAYMENT_INITIATED`
+- `PAYMENT_STATUS_UPDATED`
+- `PAYMENT_COMPLETED` or `PAYMENT_FAILED`
+
+Run the producer:
 
 ```bash
 python -m src.producer --count 100
 python -m src.producer --count 1000 --rate 20
 ```
 
-Inject duplicates, malformed messages and late event timestamps:
+Add noisy traffic to simulate real-world issues:
+
 ```bash
 python -m src.producer --count 1000 --rate 20 \
   --duplicate-rate 0.02 --malformed-rate 0.01 \
   --late-rate 0.03 --late-delay-minutes 10
 ```
 
-Rates are probabilities per valid lifecycle event. Duplicates and malformed
-messages are additional Kafka messages. Late messages have an old `event_time`
-and current `ingestion_time`.
+### Meaning of the flags
 
-## 4. Consume and inspect events
-In another terminal:
+- `--count`: total lifecycle transactions to generate
+- `--rate`: events pushed per second (or a producer pacing rate)
+- `--duplicate-rate`: probability of sending a duplicate payload
+- `--malformed-rate`: probability of generating invalid JSON or invalid fields
+- `--late-rate`: probability of emitting late data with a stale `event_time`
+
+## Consuming and inspecting events
+
+Open a second terminal and run:
+
 ```bash
 source .venv/bin/activate
 python -m src.consumer
 ```
 
-Read a fixed number:
+Read only a fixed number of messages:
+
 ```bash
 python -m src.consumer --max-messages 30
 ```
 
-Use a new consumer group to read from the beginning:
+Read from a fresh consumer group from the beginning of the topic:
+
 ```bash
 python -m src.consumer --group-id paystream-inspector-2
 ```
 
-The inspector validates messages and manually commits offsets after inspecting
-each message. Invalid messages are reported; DLQ routing comes in Milestone 2.
+The consumer validates each event using the `PaymentEvent` model and prints any schema failures.
 
-## 5. Run tests
-```bash
-pytest -q
-```
+## Event contract
 
-## 6. Inspect Kafka
+The event schema is defined in [schemas/payment_event.schema.json](schemas/payment_event.schema.json) and mirrored by [src/models.py](src/models.py).
+
+Key rules:
+
+- `event_id` uniquely identifies a message
+- `transaction_id` groups all events for one payment lifecycle
+- `amount_minor` is stored as an integer in paise to avoid floating-point money issues
+- `event_time` and `ingestion_time` must be timezone-aware timestamps
+- `currency` is constrained to `INR`
+- `event_type`, `payment_rail`, `status`, and `schema_version` are strictly validated
+
+## Kafka topics
+
+This project expects the following topics:
+
+- `payment-events` — canonical payment lifecycle stream
+- `payment-events-retry` — reserved for retryable failures
+- `payment-events-dlq` — reserved for invalid or unrecoverable records
+- `payment-events-audit` — reserved for audit or operational events
+
+Inspect the topics:
+
 ```bash
 docker compose exec kafka /opt/kafka/bin/kafka-topics.sh \
   --bootstrap-server localhost:9092 --list
@@ -88,35 +153,52 @@ docker compose exec kafka /opt/kafka/bin/kafka-topics.sh \
   --bootstrap-server localhost:9092 --describe --topic payment-events
 ```
 
-## 7. Stop
+## Running tests
+
+```bash
+pytest -q
+```
+
+The suite checks the generator lifecycle, unique IDs, malformed payload handling, and schema constraints.
+
+## Spark streaming processor
+
+The project also includes a Spark Structured Streaming processor in [src/stream_processor.py](src/stream_processor.py). It reads from Kafka, validates records, routes invalid records to a DLQ topic, and tracks late-arriving events using event-time watermarks.
+
+Typical usage:
+
+```bash
+PYSPARK_PYTHON=python3 spark-submit src/stream_processor.py \
+  --bootstrap-servers localhost:29092 \
+  --source-topic payment-events \
+  --processed-topic payment-events-processed \
+  --dlq-topic payment-events-dlq \
+  --late-topic payment-events-late
+```
+
+## Stopping services
+
 ```bash
 docker compose down
 ```
-To also delete Kafka's local data volume:
+
+To fully reset Kafka state and delete local data:
+
 ```bash
 docker compose down -v
 ```
 
-## Event contract
-See `schemas/payment_event.schema.json`. `amount_minor` is an integer amount
-in paise for INR, avoiding floating-point money arithmetic. `event_id` uniquely
-identifies an event; `transaction_id` is shared across one payment lifecycle.
-Kafka message key is `transaction_id`, preserving order within a partition.
+## Notes and limitations
 
-## Topics
-- `payment-events`: incoming payment lifecycle events
-- `payment-events-retry`: reserved for retryable failures
-- `payment-events-dlq`: reserved for invalid/permanently failed messages
-- `payment-events-audit`: reserved for processing audit events
+- This is a local development and demo project, not production infrastructure.
+- Kafka is run with a local single-node configuration.
+- Validation is implemented in Python and Spark for demonstration purposes.
+- Retry and DLQ flows are prepared for extension but may still require additional operational handling.
 
-## Milestone 1 limitations
-- One local broker; replication factor one.
-- Schema is versioned and validated in Python; Schema Registry integration comes later.
-- The consumer is an inspector, not a production sink.
-- No end-to-end exactly-once guarantee across Kafka and external databases.
-- Late-event handling is simulated here; Spark watermarking comes in Milestone 2.
-- Retry and DLQ topics are created but not yet wired into the consumer.
+## Suggested next steps
 
-## Next milestone
-Build Spark Structured Streaming over `payment-events`, with validation,
-event-ID deduplication, event-time watermarks and DLQ routing.
+- add a real DLQ consumer and retry loop
+- integrate with a data warehouse or analytics sink
+- add schema registry support
+- move event validation into a shared contract layer across producer and consumer
+- add monitoring and alerting around Kafka lag and invalid-message rates
