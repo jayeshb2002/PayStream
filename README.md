@@ -76,6 +76,67 @@ Core files:
 - `sql/001_init.sql`
 - `src/stream_processor.py`
 
+## Milestone 4.1: Airflow orchestration
+
+Milestone 4.1 adds Apache Airflow for workflow orchestration without replacing or modifying the Kafka, Spark, or PayStream PostgreSQL components. Airflow uses a separate PostgreSQL 16 metadata database, `LocalExecutor`, and the `paystream_m4_smoke_test` starter DAG.
+
+Airflow services are in the main Compose file but use the `airflow` profile, so the existing default `docker compose up` workflow continues to start only Kafka and PayStream PostgreSQL.
+
+### Configure Airflow
+
+Append these settings to the existing, Git-ignored `.env` file. Keep its PayStream PostgreSQL settings; do not replace the file. Change the example credentials and secret before starting Airflow.
+
+```env
+AIRFLOW_DB_USER=airflow
+AIRFLOW_DB_PASSWORD=change_this_metadata_password
+AIRFLOW_DB_NAME=airflow
+AIRFLOW_ADMIN_USERNAME=admin
+AIRFLOW_ADMIN_PASSWORD=change_this_admin_password
+AIRFLOW_WEBSERVER_SECRET_KEY=change_this_to_a_long_random_secret
+```
+
+Create the local Airflow directories:
+
+```bash
+mkdir -p dags logs plugins
+```
+
+### Initialize and start Airflow
+
+Run the initialization command and wait for it to finish successfully:
+
+```bash
+docker compose --profile airflow up airflow-db airflow-init
+```
+
+Start the Airflow webserver and scheduler:
+
+```bash
+docker compose --profile airflow up -d airflow-webserver airflow-scheduler
+docker compose --profile airflow ps
+```
+
+Open [http://localhost:8080](http://localhost:8080) and sign in with `AIRFLOW_ADMIN_USERNAME` and `AIRFLOW_ADMIN_PASSWORD` from `.env`.
+
+### Verify the smoke-test DAG
+
+1. Find `paystream_m4_smoke_test` in the DAG list and enable it if paused.
+2. Open the DAG and select **Trigger DAG**.
+3. In Grid view, confirm `check_airflow_runtime` and `orchestration_ready` both succeed.
+4. Open each task's logs to inspect its output.
+
+This verifies the Airflow installation only; it does not start Kafka or Spark jobs.
+
+### Airflow commands and notes
+
+```bash
+docker compose --profile airflow logs -f airflow-webserver airflow-scheduler
+docker compose --profile airflow logs airflow-init
+docker compose --profile airflow stop airflow-webserver airflow-scheduler airflow-db
+```
+
+Stopping services preserves Airflow metadata. Do not use `docker compose down -v` unless you intend to delete the Airflow metadata volume. This is a local development setup, not a production Airflow deployment.
+
 ## Technology stack
 
 - Python 3.11+

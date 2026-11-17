@@ -25,3 +25,29 @@
 8. Created separate Kafka topics for processed and late-arriving events.
 9. Added checkpointing to save streaming progress and support recovery.
 10. Added tests and documentation for the stream-processing pipeline.
+
+## Milestone 3: PostgreSQL Storage and Analytics
+
+1. Integrated PostgreSQL 16 into the PayStream architecture using Docker Compose.
+2. Created a dedicated PostgreSQL database to store processed payment events.
+3. Designed a permanent payment_events table to maintain transaction records.
+4. Created a staging table to temporarily store incoming Spark micro-batches.
+5. Built a Spark-based PostgreSQL sink to consume processed events from Kafka.
+6. Implemented batch-wise data insertion into the staging table using JDBC.
+7. Developed transactional batch merging using Python and psycopg2.
+8. Added duplicate protection using event_id as the primary key.
+9. Created database indexes and analytics views for daily and bank-wise payment analysis.
+10. Added automated tests and documentation for the PostgreSQL storage pipeline.
+
+## Milestone 4.1: Apache Airflow Setup and Orchestration Environment
+
+1. Integrated Apache Airflow into PayStream using Docker Compose.
+2. Configured Airflow with LocalExecutor for task execution.
+3. Set up a separate PostgreSQL database to store Airflow metadata.
+4. Added Airflow webserver and scheduler services.
+5. Created an initialization service to configure the Airflow database.
+6. Configured administrator credentials using environment variables.
+7. Created an initial PayStream smoke-test DAG.
+8. Added two dependent tasks to verify Airflow task execution.
+9. Successfully accessed the Airflow web interface at localhost:8080.
+10. Added setup instructions and documentation for the orchestration environment.

@@ -1,6 +1,6 @@
 # PayStream milestone notes
 
-This file consolidates the design and implementation notes for all three milestones of the project.
+This file consolidates the design and implementation notes for the completed milestones of the project.
 
 ## Milestone 1: Kafka ingestion foundation
 
@@ -77,6 +77,24 @@ Persist clean processed payment events in PostgreSQL and expose analytics views.
 - `bank_payment_analytics`
 
 These views make the data easier to query without requiring a separate reporting layer.
+
+## Milestone 4.1: Airflow orchestration setup
+
+### Goal
+Add a local Airflow installation to verify workflow orchestration without changing the existing Kafka, Spark, or PayStream PostgreSQL components.
+
+### What was added
+- Apache Airflow 2.10.5 with Python 3.11
+- a dedicated PostgreSQL 16 database for Airflow metadata
+- Airflow configured with `LocalExecutor`
+- initialization, webserver, and scheduler services in the main `docker-compose.yml`
+- an opt-in `airflow` Compose profile so the default startup continues to run only Kafka and PayStream PostgreSQL
+- the `paystream_m4_smoke_test` DAG with two dependent Python tasks
+
+### Verification
+The milestone is verified when the Airflow UI is available at `http://localhost:8080` and both smoke-test DAG tasks succeed.
+
+This milestone verifies the Airflow installation and DAG execution only. PayStream pipeline orchestration is implemented in later M4 steps.
 
 ## Cross-milestone lessons
 
