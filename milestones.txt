@@ -52,15 +52,20 @@
 9. Successfully accessed the Airflow web interface at localhost:8080.
 10. Added setup instructions and documentation for the orchestration environment.
 
-## Milestone 4.2: Airflow and PostgreSQL Integration (In Progress)
+## Milestone 4.2: Airflow and PostgreSQL Integration (Completed)
 
-1. Created a Python helper to establish connections to the PayStream PostgreSQL database using psycopg2.
+1. Created a reusable Python helper to establish connections to the PayStream PostgreSQL database using psycopg2.
 2. Developed an Airflow DAG named paystream_m4_2_db_connection.
-3. Added a PythonOperator to execute the database connectivity check.
+3. Added a PythonOperator to execute database connectivity checks.
 4. Configured database connection details using environment variables.
-5. Configured Airflow services to receive PayStream database credentials through a shared environment configuration.
+5. Configured Airflow services to receive PayStream database credentials through shared environment configuration.
 6. Integrated Kafka, PostgreSQL and Airflow services using a single Docker Compose configuration.
 7. Configured the Airflow Docker Compose profile to start orchestration services when required.
-8. Resolved Docker networking issues and verified that Airflow can resolve the PostgreSQL service hostname.
-9. Investigated PostgreSQL authentication failures and aligned database credentials across environment configurations.
-10. Pending: Verify successful PostgreSQL connectivity from Airflow and execute the DAG successfully.
+8. Resolved Docker networking issues and verified connectivity to the PostgreSQL service.
+9. Implemented a SQL-based data quality engine with 13 validation checks.
+10. Created the paystream_data_quality DAG to execute data quality checks against payment_events.
+11. Added structured reporting for total records, passed checks and failed checks.
+12. Configured task dependencies, retries and failure handling.
+13. Mounted the application source code into Airflow containers and configured PYTHONPATH to support reusable Python imports.
+14. Successfully executed the PostgreSQL connectivity and data quality DAGs.
+15. Fixed the data quality DAG import path and verified that Airflow reports no DAG import errors.

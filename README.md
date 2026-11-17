@@ -127,9 +127,12 @@ Open [http://localhost:8080](http://localhost:8080) and sign in with `AIRFLOW_AD
 
 This verifies the Airflow installation only; it does not start Kafka or Spark jobs.
 
-## Milestone 4.2: Airflow and PostgreSQL integration (in progress)
+## Milestone 4.2: Airflow and PostgreSQL integration (completed)
 
-Milestone 4.2 adds a database connectivity check from Airflow to the PayStream PostgreSQL service. The `paystream_m4_2_db_connection` DAG runs the `check_paystream_postgres_connection` task, which connects using `psycopg2` and reports the database, user, and server time. It does not modify payment data.
+Milestone 4.2 integrates Airflow with the PayStream PostgreSQL service and adds data quality validation for `payment_events`.
+
+- `paystream_m4_2_db_connection` checks the database connection and reports the database, user, and server time.
+- `paystream_data_quality` checks the database connection, then runs 13 SQL-based validations against `payment_events` and reports the results. The validation task fails if any checks find invalid records.
 
 ### Configure the database connection
 
@@ -143,20 +146,23 @@ PAYSTREAM_DB_USER=paystream
 PAYSTREAM_DB_PASSWORD=change_this_to_match_POSTGRES_PASSWORD
 ```
 
-Ensure the Airflow settings from Milestone 4.1 are also present. Start PayStream PostgreSQL and the Airflow services:
+Ensure the Airflow settings from Milestone 4.1 are also present. Compose mounts the application source at `/opt/airflow/src` and sets `PYTHONPATH=/opt/airflow`, allowing DAGs to import the `src` package. Start PayStream PostgreSQL and the Airflow services:
 
 ```bash
 docker compose up -d postgres
 docker compose --profile airflow up -d airflow-webserver airflow-scheduler
 ```
 
-In the Airflow UI at [http://localhost:8080](http://localhost:8080), trigger `paystream_m4_2_db_connection` and confirm `check_paystream_postgres_connection` succeeds. The task should report the database, user, and server time. View service logs with:
+In the Airflow UI at [http://localhost:8080](http://localhost:8080):
+
+1. Trigger `paystream_m4_2_db_connection` and confirm `check_paystream_postgres_connection` succeeds. The task should report the database, user, and server time.
+2. Trigger `paystream_data_quality` and confirm `check_database_connection` succeeds. Review `execute_data_quality_checks` for the validation report; it fails when checks find invalid records.
+
+View service logs with:
 
 ```bash
 docker compose --profile airflow logs -f airflow-webserver airflow-scheduler
 ```
-
-The DAG and Compose environment wiring are in place, but successful end-to-end PostgreSQL connectivity and DAG execution are still pending verification.
 
 ### Airflow commands and notes
 

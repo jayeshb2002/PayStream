@@ -83,6 +83,7 @@ services:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER:-airflow}:${AIRFLOW_DB_PASSWORD:-airflow_dev_password}@airflow-db:5432/${AIRFLOW_DB_NAME:-airflow}
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY:-paystream-local-secret-change-me}
+      PYTHONPATH: /opt/airflow
       _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_ADMIN_USERNAME:-admin}
       _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-paystream_admin_password}
       PAYSTREAM_DB_HOST: ${PAYSTREAM_DB_HOST:-postgres}
@@ -93,6 +94,7 @@ services:
     user: "${AIRFLOW_UID:-50000}:0"
     volumes: &airflow-volumes
       - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
     entrypoint: /bin/bash
