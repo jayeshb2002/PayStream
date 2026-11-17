@@ -51,3 +51,16 @@
 8. Added two dependent tasks to verify Airflow task execution.
 9. Successfully accessed the Airflow web interface at localhost:8080.
 10. Added setup instructions and documentation for the orchestration environment.
+
+## Milestone 4.2: Airflow and PostgreSQL Integration (In Progress)
+
+1. Created a Python helper to establish connections to the PayStream PostgreSQL database using psycopg2.
+2. Developed an Airflow DAG named paystream_m4_2_db_connection.
+3. Added a PythonOperator to execute the database connectivity check.
+4. Configured database connection details using environment variables.
+5. Configured Airflow services to receive PayStream database credentials through a shared environment configuration.
+6. Integrated Kafka, PostgreSQL and Airflow services using a single Docker Compose configuration.
+7. Configured the Airflow Docker Compose profile to start orchestration services when required.
+8. Resolved Docker networking issues and verified that Airflow can resolve the PostgreSQL service hostname.
+9. Investigated PostgreSQL authentication failures and aligned database credentials across environment configurations.
+10. Pending: Verify successful PostgreSQL connectivity from Airflow and execute the DAG successfully.

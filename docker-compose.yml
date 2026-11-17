@@ -85,6 +85,11 @@ services:
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY:-paystream-local-secret-change-me}
       _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_ADMIN_USERNAME:-admin}
       _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-paystream_admin_password}
+      PAYSTREAM_DB_HOST: ${PAYSTREAM_DB_HOST:-postgres}
+      PAYSTREAM_DB_PORT: ${PAYSTREAM_DB_PORT:-5432}
+      PAYSTREAM_DB_NAME: ${PAYSTREAM_DB_NAME:-paystream}
+      PAYSTREAM_DB_USER: ${PAYSTREAM_DB_USER:-paystream}
+      PAYSTREAM_DB_PASSWORD: ${PAYSTREAM_DB_PASSWORD}
     user: "${AIRFLOW_UID:-50000}:0"
     volumes: &airflow-volumes
       - ./dags:/opt/airflow/dags
