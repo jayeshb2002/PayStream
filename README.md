@@ -174,9 +174,9 @@ docker compose --profile airflow stop airflow-webserver airflow-scheduler airflo
 
 Stopping services preserves Airflow metadata. Do not use `docker compose down -v` unless you intend to delete the Airflow metadata volume. This is a local development setup, not a production Airflow deployment.
 
-## Milestone 4.3: Automated analytics pipeline (in progress)
+## Milestone 4.3: Automated analytics pipeline (implementation complete; runtime verification pending)
 
-The `paystream_m4_3_analytics` DAG generates daily snapshots from `payment_events`. It has separate tasks for daily totals by payment rail and bank-wise totals by sender bank and payment rail. The aggregates include transaction counts, amounts, and success rates. Both tasks use PostgreSQL upserts, so rerunning a date updates its existing snapshots. The DAG is scheduled daily at 00:15 UTC and uses the run's data interval start date.
+The `paystream_m4_3_analytics` DAG generates daily snapshots from `payment_events`. It has separate tasks for daily totals by payment rail and bank-wise totals by sender bank and payment rail. The aggregates include transaction counts, amounts, and success rates. Both tasks use PostgreSQL upserts, so rerunning a date updates its existing snapshots. The DAG is scheduled daily at 01:15 UTC and uses the run's data interval start date.
 
 The implementation is in `src/orchestration/analytics.py`, with snapshot table definitions in `sql/002_analytics.sql`. Before running the DAG, apply the migration to the PayStream database:
 

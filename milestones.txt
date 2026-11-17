@@ -70,17 +70,23 @@
 14. Successfully executed the PostgreSQL connectivity and data quality DAGs.
 15. Fixed the data quality DAG import path and verified that Airflow reports no DAG import errors.
 
-## Milestone 4.3: Automated Analytics Pipeline (Implementation Completed, Runtime Verification Pending)
+## Milestone 4.3: Automated Analytics Pipeline — Completed
 
-1. Designed the architecture for scheduled payment analytics using Apache Airflow and PostgreSQL.
-2. Designed dedicated PostgreSQL snapshot tables for daily and bank-wise analytics.
-3. Implemented SQL migration scripts for analytics table creation.
-4. Developed reusable Python analytics functions for daily payment aggregation.
-5. Implemented bank-wise payment aggregation by sender bank and payment rail.
-6. Added transaction counts, successful and failed payment counts, total amounts and success-rate calculations.
-7. Implemented idempotent analytics updates using PostgreSQL UPSERT operations.
-8. Created the `paystream_m4_3_analytics` DAG, scheduled daily at 01:15 UTC, with separate daily and bank-wise analytics tasks.
-9. Added automated unit tests for the analytics engine.
-10. Pending: Populate PostgreSQL through the Kafka-to-Spark-to-PostgreSQL pipeline.
-11. Pending: Execute the analytics migration and verify the generated snapshot tables.
-12. Pending: Trigger the Airflow analytics DAG and validate the results in PostgreSQL.
+1. Designed scheduled payment analytics using Apache Airflow and PostgreSQL.
+2. Created dedicated snapshot tables for daily and bank-wise analytics.
+3. Implemented SQL migration scripts for analytics tables.
+4. Developed reusable Python functions for daily payment aggregation.
+5. Implemented bank-wise aggregation by sender bank and payment rail.
+6. Added transaction counts, successful and failed payment counts, and payment amount calculations.
+7. Used SQL window functions to identify the latest payment status for each transaction.
+8. Implemented idempotent analytics updates using PostgreSQL UPSERT operations.
+9. Added transactional delete-and-rebuild logic for analytics refreshes.
+10. Created the `paystream_m4_3_analytics` Airflow DAG.
+11. Configured automatic daily execution at 01:15 UTC.
+12. Configured Airflow to process the relevant data interval.
+13. Added database transaction handling and task-level execution.
+14. Added unit tests for date validation, commits, rollbacks and analytics execution.
+15. Successfully executed the analytics DAG through Airflow.
+16. Verified that `daily_payment_analytics_snapshot` contains analytics records.
+17. Verified that `bank_payment_analytics_snapshot` contains analytics records.
+18. Verified successful end-to-end analytics execution using the PostgreSQL database.
