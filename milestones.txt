@@ -69,3 +69,18 @@
 13. Mounted the application source code into Airflow containers and configured PYTHONPATH to support reusable Python imports.
 14. Successfully executed the PostgreSQL connectivity and data quality DAGs.
 15. Fixed the data quality DAG import path and verified that Airflow reports no DAG import errors.
+
+## Milestone 4.3: Automated Analytics Pipeline (In Progress)
+
+1. Designed the architecture for scheduled payment analytics using Apache Airflow and PostgreSQL.
+2. Designed dedicated PostgreSQL snapshot tables for daily and bank-wise analytics.
+3. Implemented SQL migration scripts for analytics table creation.
+4. Developed reusable Python analytics functions for daily payment aggregation.
+5. Implemented bank-wise payment aggregation by sender bank and payment rail.
+6. Added transaction counts, successful and failed payment counts, total amounts and success-rate calculations.
+7. Implemented idempotent analytics updates using PostgreSQL UPSERT operations.
+8. Created the paystream_m4_3_analytics DAG, scheduled daily at 00:15 UTC with daily and bank-wise analytics tasks for the run's data interval date.
+9. Added automated unit tests for the analytics engine.
+10. Pending: Populate PostgreSQL through the Kafka-to-Spark-to-PostgreSQL pipeline.
+11. Pending: Execute the analytics migration and verify the generated snapshot tables.
+12. Pending: Trigger the Airflow analytics DAG and validate the results in PostgreSQL.

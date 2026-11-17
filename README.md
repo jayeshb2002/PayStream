@@ -1,6 +1,6 @@
 # PayStream
 
-PayStream is a local payment-event streaming project that demonstrates a full event pipeline using Kafka, Python, Spark Structured Streaming, and PostgreSQL, with Apache Airflow added for orchestration. The pipeline milestones cover event generation and ingestion, validation and streaming processing, database persistence and analytics, and Airflow integration.
+PayStream is a local payment-event streaming project that demonstrates a full event pipeline using Kafka, Python, Spark Structured Streaming, and PostgreSQL, with Apache Airflow added for orchestration, data quality checks, and scheduled analytics snapshots. The pipeline milestones cover event generation and ingestion, validation and streaming processing, database persistence and analytics, and Airflow integration.
 
 ## Architecture overview
 
@@ -173,6 +173,28 @@ docker compose --profile airflow stop airflow-webserver airflow-scheduler airflo
 ```
 
 Stopping services preserves Airflow metadata. Do not use `docker compose down -v` unless you intend to delete the Airflow metadata volume. This is a local development setup, not a production Airflow deployment.
+
+## Milestone 4.3: Automated analytics pipeline (in progress)
+
+The `paystream_m4_3_analytics` DAG generates daily snapshots from `payment_events`. It has separate tasks for daily totals by payment rail and bank-wise totals by sender bank and payment rail. The aggregates include transaction counts, amounts, and success rates. Both tasks use PostgreSQL upserts, so rerunning a date updates its existing snapshots. The DAG is scheduled daily at 00:15 UTC and uses the run's data interval start date.
+
+The implementation is in `src/orchestration/analytics.py`, with snapshot table definitions in `sql/002_analytics.sql`. Before running the DAG, apply the migration to the PayStream database:
+
+```bash
+docker compose exec -T postgres psql -U paystream -d paystream < sql/002_analytics.sql
+```
+
+In the Airflow UI, trigger `paystream_m4_3_analytics` for a date with payment events and confirm both `generate_daily_analytics` and `generate_bank_analytics` succeed. Inspect the resulting snapshots with:
+
+```sql
+SELECT * FROM daily_payment_analytics_snapshot
+ORDER BY analytics_date DESC, payment_rail;
+
+SELECT * FROM bank_payment_analytics_snapshot
+ORDER BY analytics_date DESC, sender_bank, payment_rail;
+```
+
+Unit tests for the analytics functions can be run with `pytest -q tests/test_analytics.py`. End-to-end verification still requires populating `payment_events`, applying the migration, and validating the DAG output in PostgreSQL.
 
 ## Technology stack
 
