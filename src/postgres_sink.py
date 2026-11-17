@@ -11,6 +11,7 @@ import argparse
 import logging
 import os
 from typing import Any
+from dotenv import load_dotenv
 
 import psycopg2
 from pyspark.sql import DataFrame, SparkSession
@@ -122,6 +123,11 @@ def build_spark() -> SparkSession:
         SparkSession.builder.appName("PayStream-Milestone-3-PostgreSQL-Sink")
         .config("spark.sql.session.timeZone", "UTC")
         .config("spark.sql.shuffle.partitions", "3")
+        .config(
+            "spark.jars.packages",
+            "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5,"
+            "org.postgresql:postgresql:42.7.5"
+        )
         .getOrCreate()
     )
 
@@ -235,6 +241,7 @@ def start(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
+    load_dotenv()
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s - %(message)s",

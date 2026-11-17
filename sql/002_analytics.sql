@@ -1,8 +1,4 @@
 
--- PayStream Milestone 4.3
--- Persistent analytics snapshot tables.
--- Existing analytics views are not modified.
-
 CREATE TABLE IF NOT EXISTS daily_payment_analytics_snapshot (
     analytics_date DATE NOT NULL,
     payment_rail VARCHAR(20) NOT NULL,
@@ -39,17 +35,21 @@ CREATE TABLE IF NOT EXISTS bank_payment_analytics_snapshot (
 
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (analytics_date, sender_bank, payment_rail)
+    PRIMARY KEY (
+        analytics_date,
+        sender_bank,
+        payment_rail
+    )
 );
 
 
-CREATE INDEX IF NOT EXISTS idx_daily_analytics_date
+CREATE INDEX IF NOT EXISTS idx_daily_snapshot_date
 ON daily_payment_analytics_snapshot (analytics_date);
 
 
-CREATE INDEX IF NOT EXISTS idx_bank_analytics_date
+CREATE INDEX IF NOT EXISTS idx_bank_snapshot_date
 ON bank_payment_analytics_snapshot (analytics_date);
 
 
-CREATE INDEX IF NOT EXISTS idx_bank_analytics_sender
+CREATE INDEX IF NOT EXISTS idx_bank_snapshot_sender
 ON bank_payment_analytics_snapshot (sender_bank);

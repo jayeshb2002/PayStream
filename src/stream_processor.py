@@ -70,11 +70,14 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def build_spark() -> SparkSession:
+def build_spark():
     return (
-        SparkSession.builder.appName("PayStream-Milestone-2")
-        .config("spark.sql.session.timeZone", "UTC")
-        .config("spark.sql.shuffle.partitions", os.getenv("SPARK_SHUFFLE_PARTITIONS", "3"))
+        SparkSession.builder
+        .appName("PayStreamStreamProcessor")
+        .config(
+            "spark.jars.packages",
+            "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.5"
+        )
         .getOrCreate()
     )
 
@@ -132,6 +135,15 @@ def kafka_write(df: DataFrame, topic: str, bootstrap_servers: str) -> None:
 
 
 def write_invalid_batch(batch_df: DataFrame, batch_id: int, topic: str, bootstrap_servers: str) -> None:
+    record_count = batch_df.count()
+    LOG.warning(
+        "DEBUG: Invalid batch %s received %s records",
+        batch_id,
+        record_count,
+    )
+
+    if record_count == 0:
+        return
     if batch_df.isEmpty():
         return
     LOG.warning("Batch %s: routing invalid records to %s", batch_id, topic)
@@ -156,6 +168,15 @@ def write_invalid_batch(batch_df: DataFrame, batch_id: int, topic: str, bootstra
 
 
 def write_processed_batch(batch_df: DataFrame, batch_id: int, args: argparse.Namespace) -> None:
+    record_count = batch_df.count()
+    LOG.warning(
+        "DEBUG: Processed batch %s received %s records",
+        batch_id,
+        record_count,
+    )
+
+    if record_count == 0:
+        return
     if batch_df.isEmpty():
         return
     output = batch_df.select(
@@ -173,6 +194,15 @@ def write_processed_batch(batch_df: DataFrame, batch_id: int, args: argparse.Nam
 
 
 def write_late_batch(batch_df: DataFrame, batch_id: int, args: argparse.Namespace) -> None:
+    record_count = batch_df.count()
+    LOG.warning(
+        "DEBUG: Late batch %s received %s records",
+        batch_id,
+        record_count,
+    )
+
+    if record_count == 0:
+        return
     if batch_df.isEmpty():
         return
     output = batch_df.select(

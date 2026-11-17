@@ -1,85 +1,95 @@
 
-from datetime import date
+from datetime import date, datetime
+from unittest.mock import MagicMock
 
 import pytest
 
 from src.orchestration.analytics import (
-    generate_daily_analytics,
-    generate_bank_analytics,
-    _validate_target_date
+    validate_target_date,
+    refresh_daily_analytics,
+    refresh_bank_analytics
 )
 
 
-class FakeCursor:
-    def __init__(self, connection):
-        self.connection = connection
-        self.rowcount = 4
+def make_connection():
+    connection = MagicMock()
+    cursor = MagicMock()
 
-    def __enter__(self):
-        return self
+    connection.cursor.return_value.__enter__.return_value = cursor
+    connection.cursor.return_value.__exit__.return_value = False
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        return False
+    cursor.rowcount = 3
 
-    def execute(self, query, params):
-        self.connection.executed_queries.append(query)
-        self.connection.executed_params.append(params)
+    return connection, cursor
 
 
-class FakeConnection:
-    def __init__(self):
-        self.executed_queries = []
-        self.executed_params = []
-        self.committed = False
-        self.rolled_back = False
+def test_validate_target_date_string():
+    result = validate_target_date("2026-11-16")
 
-    def cursor(self):
-        return FakeCursor(self)
-
-    def commit(self):
-        self.committed = True
-
-    def rollback(self):
-        self.rolled_back = True
+    assert result == date(2026, 11, 16)
 
 
-def test_daily_analytics_executes_and_commits():
-    connection = FakeConnection()
+def test_validate_target_date_object():
+    result = validate_target_date(date(2026, 11, 16))
 
-    result = generate_daily_analytics(
-        connection,
-        "2026-11-17"
-    )
-
-    assert result["type"] == "daily"
-    assert result["rows_upserted"] == 4
-    assert connection.committed is True
-    assert len(connection.executed_queries) == 1
-    assert connection.executed_params == [
-        (date(2026, 11, 17), date(2026, 11, 17))
-    ]
+    assert result == date(2026, 11, 16)
 
 
-def test_bank_analytics_executes_and_commits():
-    connection = FakeConnection()
-
-    result = generate_bank_analytics(
-        connection,
-        "2026-11-17"
-    )
-
-    assert result["type"] == "bank"
-    assert result["rows_upserted"] == 4
-    assert connection.committed is True
-    assert len(connection.executed_queries) == 1
-
-
-def test_target_date_accepts_date_object():
-    target = date(2026, 11, 17)
-
-    assert _validate_target_date(target) == target
-
-
-def test_target_date_rejects_invalid_string():
+def test_validate_target_date_invalid():
     with pytest.raises(ValueError):
-        _validate_target_date("invalid-date")
+        validate_target_date("16-11-2026")
+
+
+def test_validate_target_date_rejects_datetime():
+    with pytest.raises(ValueError):
+        validate_target_date(datetime(2026, 11, 16))
+
+
+def test_daily_analytics_success():
+    connection, cursor = make_connection()
+
+    result = refresh_daily_analytics(
+        connection,
+        "2026-11-16"
+    )
+
+    assert result == {
+        "analytics_date": "2026-11-16",
+        "daily_rows": 3
+    }
+
+    assert cursor.execute.call_count == 2
+    connection.commit.assert_called_once()
+    connection.rollback.assert_not_called()
+
+
+def test_bank_analytics_success():
+    connection, cursor = make_connection()
+
+    result = refresh_bank_analytics(
+        connection,
+        "2026-11-16"
+    )
+
+    assert result == {
+        "analytics_date": "2026-11-16",
+        "bank_rows": 3
+    }
+
+    assert cursor.execute.call_count == 2
+    connection.commit.assert_called_once()
+
+
+def test_daily_analytics_rollback_on_failure():
+    connection, cursor = make_connection()
+
+    cursor.execute.side_effect = RuntimeError("Database error")
+
+    with pytest.raises(RuntimeError):
+        refresh_daily_analytics(
+            connection,
+            "2026-11-16"
+        )
+
+    connection.rollback.assert_called_once()
+    connection.commit.assert_not_called()
