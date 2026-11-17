@@ -1,6 +1,6 @@
 # PayStream milestone notes
 
-This file consolidates the design and implementation notes for the completed milestones of the project.
+This file consolidates the design and implementation notes for the completed and in-progress milestones of the project.
 
 ## Milestone 1: Kafka ingestion foundation
 
@@ -95,6 +95,21 @@ Add a local Airflow installation to verify workflow orchestration without changi
 The milestone is verified when the Airflow UI is available at `http://localhost:8080` and both smoke-test DAG tasks succeed.
 
 This milestone verifies the Airflow installation and DAG execution only. PayStream pipeline orchestration is implemented in later M4 steps.
+
+## Milestone 4.2: Airflow and PostgreSQL integration (in progress)
+
+### Goal
+Connect Airflow tasks to the PayStream PostgreSQL database so workflows can verify and later use database connectivity.
+
+### What was added
+- `dags/paystream_db_connection.py` provides a `psycopg2` helper that reads PayStream database connection settings from environment variables.
+- `dags/paystream_m4_2_db_connection.py` defines the `paystream_m4_2_db_connection` DAG and its `check_paystream_postgres_connection` task.
+- The Airflow services receive the PayStream database host, port, name, user, and password from the environment.
+- The DAG queries the current database, user, and server time without changing payment data.
+- The Airflow service uses the Compose network hostname `postgres` to reach PayStream PostgreSQL.
+
+### Verification status
+Configuration and DAG implementation are in place. Successful PostgreSQL authentication from Airflow and a successful DAG run are still pending verification.
 
 ## Cross-milestone lessons
 

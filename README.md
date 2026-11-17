@@ -1,6 +1,6 @@
 # PayStream
 
-PayStream is a local payment-event streaming project that demonstrates a full event pipeline using Kafka, Python, Spark Structured Streaming, and PostgreSQL. It is structured as three milestones: event generation and ingestion, validation and streaming processing, and database persistence with analytics.
+PayStream is a local payment-event streaming project that demonstrates a full event pipeline using Kafka, Python, Spark Structured Streaming, and PostgreSQL, with Apache Airflow added for orchestration. The pipeline milestones cover event generation and ingestion, validation and streaming processing, database persistence and analytics, and Airflow integration.
 
 ## Architecture overview
 
@@ -127,6 +127,37 @@ Open [http://localhost:8080](http://localhost:8080) and sign in with `AIRFLOW_AD
 
 This verifies the Airflow installation only; it does not start Kafka or Spark jobs.
 
+## Milestone 4.2: Airflow and PostgreSQL integration (in progress)
+
+Milestone 4.2 adds a database connectivity check from Airflow to the PayStream PostgreSQL service. The `paystream_m4_2_db_connection` DAG runs the `check_paystream_postgres_connection` task, which connects using `psycopg2` and reports the database, user, and server time. It does not modify payment data.
+
+### Configure the database connection
+
+Add these values to the existing `.env` file. Use the same database name, user, and password as the PayStream PostgreSQL settings above. The host and port below are for container-to-container communication, not the host machine.
+
+```env
+PAYSTREAM_DB_HOST=postgres
+PAYSTREAM_DB_PORT=5432
+PAYSTREAM_DB_NAME=paystream
+PAYSTREAM_DB_USER=paystream
+PAYSTREAM_DB_PASSWORD=change_this_to_match_POSTGRES_PASSWORD
+```
+
+Ensure the Airflow settings from Milestone 4.1 are also present. Start PayStream PostgreSQL and the Airflow services:
+
+```bash
+docker compose up -d postgres
+docker compose --profile airflow up -d airflow-webserver airflow-scheduler
+```
+
+In the Airflow UI at [http://localhost:8080](http://localhost:8080), trigger `paystream_m4_2_db_connection` and confirm `check_paystream_postgres_connection` succeeds. The task should report the database, user, and server time. View service logs with:
+
+```bash
+docker compose --profile airflow logs -f airflow-webserver airflow-scheduler
+```
+
+The DAG and Compose environment wiring are in place, but successful end-to-end PostgreSQL connectivity and DAG execution are still pending verification.
+
 ### Airflow commands and notes
 
 ```bash
@@ -145,6 +176,7 @@ Stopping services preserves Airflow metadata. Do not use `docker compose down -v
 - Pydantic for event validation
 - Spark Structured Streaming
 - PostgreSQL
+- Apache Airflow with LocalExecutor
 - pytest for automated checks
 
 ## Prerequisites
