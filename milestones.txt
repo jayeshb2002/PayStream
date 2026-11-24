@@ -104,3 +104,19 @@
 9. Implemented structured health-check logging.
 10. Pending: Verify all health-check tasks through a successful Airflow DAG run.
 
+### Milestone 4.4.2: Processing Metrics
+
+1. Created a centralized PostgreSQL pipeline metrics table.
+2. Implemented a reusable Python metrics collector.
+3. Added idempotent metric writes using component, batch ID and metric name.
+4. Instrumented Spark processed-event batches.
+5. Instrumented Spark rejected-event batches.
+6. Instrumented Spark late-event batches.
+7. Added Spark batch processing duration measurements.
+8. Instrumented PostgreSQL sink batches.
+9. Added best-effort metrics recording to avoid interrupting payment processing.
+10. Created an hourly Airflow metrics reporting DAG.
+11. Added unit tests for metrics validation and failure handling.
+12. Pending: Execute the instrumented Spark processor and PostgreSQL sink.
+13. Pending: Verify actual metrics in PostgreSQL.
+14. Pending: Verify successful Airflow metrics reporting.

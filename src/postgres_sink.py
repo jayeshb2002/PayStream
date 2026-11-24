@@ -7,6 +7,9 @@ staging-table + PostgreSQL ON CONFLICT merge pattern.
 
 from __future__ import annotations
 
+import time
+from src.orchestration.metrics_collector import record_batch_metrics_safely
+
 import argparse
 import logging
 import os
@@ -218,7 +221,7 @@ def start(args: argparse.Namespace) -> None:
                 f"Batch {batch_id} contains {malformed_count} malformed processed-topic messages. "
                 "Inspect the source topic before restarting the sink."
             )
-        write_batch(batch_df, batch_id, args)
+        write_batch_with_metrics(batch_df, batch_id, args)
 
     query = (
         events.writeStream.queryName("paystream-postgres-sink")
@@ -238,6 +241,31 @@ def start(args: argparse.Namespace) -> None:
     finally:
         query.stop()
         spark.stop()
+
+
+def write_batch_with_metrics(batch_df, batch_id, args):
+    """Write a batch to PostgreSQL and record successful sink metrics."""
+
+    start_time = time.perf_counter()
+
+    # Count incoming events before the sink operation.
+    incoming_count = batch_df.count()
+
+    # Existing sink function performs staging write and transactional merge.
+    write_batch(batch_df, batch_id, args)
+
+    duration_ms = int(
+        (time.perf_counter() - start_time) * 1000
+    )
+
+    record_batch_metrics_safely(
+        component="postgres_sink",
+        batch_id=batch_id,
+        metrics={
+            "records_stored": incoming_count,
+        },
+        processing_duration_ms=duration_ms,
+    )
 
 
 if __name__ == "__main__":
