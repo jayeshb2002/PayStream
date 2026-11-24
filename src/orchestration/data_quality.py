@@ -1,12 +1,11 @@
 
-def run_data_quality_checks(connection):
-    """
-    Run SQL-based data quality checks against payment_events.
+import time
 
-    Returns a structured report containing failed record counts.
-    """
 
-    checks = {
+def get_data_quality_checks():
+    """Return all SQL-based payment data quality checks."""
+
+    return {
         "null_or_empty_event_ids": """
             SELECT COUNT(*)
             FROM payment_events
@@ -107,7 +106,22 @@ def run_data_quality_checks(connection):
         """
     }
 
-    report = {}
+
+def run_data_quality_checks(connection):
+    """
+    Run all SQL data quality checks.
+
+    Returns a structured report containing:
+    - Total records
+    - Individual check results
+    - Passed and failed check counts
+    - Execution duration
+    """
+
+    started_at = time.perf_counter()
+    checks = get_data_quality_checks()
+
+    check_results = {}
 
     with connection.cursor() as cursor:
         cursor.execute("SELECT COUNT(*) FROM payment_events")
@@ -115,21 +129,33 @@ def run_data_quality_checks(connection):
 
         for check_name, query in checks.items():
             cursor.execute(query)
-            report[check_name] = cursor.fetchone()[0]
+            failed_records = cursor.fetchone()[0]
+
+            check_results[check_name] = {
+                "failed_records": failed_records,
+                "status": "FAILED" if failed_records > 0 else "PASSED"
+            }
 
     failed_checks = {
-        name: count
-        for name, count in report.items()
-        if count > 0
+        name: result["failed_records"]
+        for name, result in check_results.items()
+        if result["status"] == "FAILED"
     }
 
-    passed_checks = len(checks) - len(failed_checks)
+    total_checks = len(checks)
+    passed_checks = total_checks - len(failed_checks)
+
+    execution_duration_ms = int(
+        (time.perf_counter() - started_at) * 1000
+    )
 
     return {
         "total_records": total_records,
-        "total_checks": len(checks),
+        "total_checks": total_checks,
         "passed_checks": passed_checks,
         "failed_checks_count": len(failed_checks),
         "failed_checks": failed_checks,
+        "check_results": check_results,
+        "execution_duration_ms": execution_duration_ms,
         "status": "FAILED" if failed_checks else "PASSED"
     }

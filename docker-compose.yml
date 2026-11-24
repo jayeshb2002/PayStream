@@ -91,6 +91,7 @@ services:
       PAYSTREAM_DB_NAME: ${PAYSTREAM_DB_NAME:-paystream}
       PAYSTREAM_DB_USER: ${PAYSTREAM_DB_USER:-paystream}
       PAYSTREAM_DB_PASSWORD: ${PAYSTREAM_DB_PASSWORD}
+      DATA_QUALITY_THRESHOLD: ${DATA_QUALITY_THRESHOLD:-95}
     user: "${AIRFLOW_UID:-50000}:0"
     volumes: &airflow-volumes
       - ./dags:/opt/airflow/dags

@@ -120,3 +120,25 @@
 12. Pending: Execute the instrumented Spark processor and PostgreSQL sink.
 13. Pending: Verify actual metrics in PostgreSQL.
 14. Pending: Verify successful Airflow metrics reporting.
+
+### Milestone 4.4.3: Data Quality Monitoring
+
+1. Reused the existing 13 SQL-based data quality validation checks.
+2. Enhanced the data quality engine to return individual validation results.
+3. Added data quality execution duration measurements.
+4. Created a PostgreSQL data_quality_runs table for monitoring history.
+5. Created a PostgreSQL data_quality_check_results table for individual check results.
+6. Implemented unique monitoring run IDs.
+7. Added data quality score calculation based on passed validation checks.
+8. Added configurable quality threshold using the DATA_QUALITY_THRESHOLD environment variable.
+9. Implemented threshold-based monitoring statuses: PASSED, WARNING and FAILED.
+10. Implemented persistent storage of monitoring summaries and individual check results.
+11. Created a scheduled Airflow data quality monitoring DAG.
+12. Configured automated data quality monitoring every 15 minutes.
+13. Added Airflow task failure visibility when quality falls below the configured threshold.
+14. Added SQL queries for historical data quality trend analysis.
+15. Added unit tests for quality score calculation and result persistence.
+16. Pending: Execute the new Airflow data quality monitoring DAG.
+17. Pending: Verify monitoring run records in PostgreSQL.
+18. Pending: Verify individual validation results in PostgreSQL.
+19. Pending: Verify threshold-based Airflow task behavior.
