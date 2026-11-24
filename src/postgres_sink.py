@@ -10,6 +10,10 @@ from __future__ import annotations
 import time
 from src.orchestration.metrics_collector import record_batch_metrics_safely
 
+from src.orchestration.failure_tracker import (
+    record_pipeline_failure_safely
+)
+
 import argparse
 import logging
 import os
@@ -243,29 +247,40 @@ def start(args: argparse.Namespace) -> None:
         spark.stop()
 
 
-def write_batch_with_metrics(batch_df, batch_id, args):
-    """Write a batch to PostgreSQL and record successful sink metrics."""
 
+def write_batch_with_metrics(batch_df, batch_id, args):
     start_time = time.perf_counter()
 
-    # Count incoming events before the sink operation.
-    incoming_count = batch_df.count()
+    try:
+        incoming_count = batch_df.count()
 
-    # Existing sink function performs staging write and transactional merge.
-    write_batch(batch_df, batch_id, args)
+        write_batch(batch_df, batch_id, args)
 
-    duration_ms = int(
-        (time.perf_counter() - start_time) * 1000
-    )
+        duration_ms = int(
+            (time.perf_counter() - start_time) * 1000
+        )
 
-    record_batch_metrics_safely(
-        component="postgres_sink",
-        batch_id=batch_id,
-        metrics={
-            "records_stored": incoming_count,
-        },
-        processing_duration_ms=duration_ms,
-    )
+        record_batch_metrics_safely(
+            component="postgres_sink",
+            batch_id=batch_id,
+            metrics={
+                "records_submitted": incoming_count
+            },
+            processing_duration_ms=duration_ms
+        )
+
+    except Exception as exc:
+        record_pipeline_failure_safely(
+            component="postgres_sink",
+            failure_type="POSTGRES_SINK_BATCH_FAILURE",
+            exception=exc,
+            severity="CRITICAL",
+            context={
+                "batch_id": batch_id
+            }
+        )
+
+        raise
 
 
 if __name__ == "__main__":

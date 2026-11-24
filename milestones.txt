@@ -142,3 +142,32 @@
 17. Pending: Verify monitoring run records in PostgreSQL.
 18. Pending: Verify individual validation results in PostgreSQL.
 19. Pending: Verify threshold-based Airflow task behavior.
+
+### Milestone 4.4.4: Failure Monitoring
+
+1. Created a centralized PostgreSQL pipeline_failures table for failure history.
+2. Implemented a reusable Python failure tracking utility.
+3. Added unique failure IDs for tracking individual incidents.
+4. Implemented stable incident identification using SHA-256 failure keys.
+5. Added component-level failure tracking for Kafka, Spark, PostgreSQL and Airflow.
+6. Implemented failure type and severity classification.
+7. Added exception message and stack trace capture.
+8. Implemented JSON-based execution context tracking.
+9. Added recurring incident tracking using occurrence counts.
+10. Implemented failure timestamps and last-seen tracking.
+11. Added failure status management with OPEN and RESOLVED states.
+12. Implemented functionality to resolve recorded incidents.
+13. Added best-effort failure logging to prevent monitoring errors from masking original pipeline failures.
+14. Instrumented Spark Structured Streaming batch failures.
+15. Instrumented PostgreSQL sink batch failures.
+16. Added Kafka producer exception and delivery failure tracking.
+17. Implemented Airflow task failure discovery using Airflow metadata.
+18. Created a scheduled Airflow failure monitoring DAG.
+19. Configured automated Airflow failure discovery every 5 minutes.
+20. Added unit tests for failure identification, recording and resolution.
+21. Pending: Execute the failure tracker unit tests.
+22. Pending: Verify failure records in PostgreSQL.
+23. Pending: Verify recurring incident occurrence counts.
+24. Pending: Verify incident resolution and status updates.
+25. Pending: Verify Spark, PostgreSQL and Kafka failure capture.
+26. Pending: Execute and verify the Airflow failure monitoring DAG.

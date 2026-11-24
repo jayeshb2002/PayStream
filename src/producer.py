@@ -9,6 +9,9 @@ from confluent_kafka import KafkaException, Producer
 from src.config import KAFKA_BOOTSTRAP_SERVERS, KAFKA_CLIENT_ID, PAYMENT_EVENTS_TOPIC
 from src.generator import generate_lifecycle
 
+from src.orchestration.failure_tracker import (
+    record_pipeline_failure_safely
+)
 
 def probability(value: str) -> float:
     number = float(value)
@@ -70,12 +73,26 @@ def main() -> int:
                 late_delay_minutes=args.late_delay_minutes,
                 rng=rng,
             ):
-                producer.produce(
-                    PAYMENT_EVENTS_TOPIC,
-                    key=transaction_id.encode("utf-8"),
-                    value=payload,
-                    callback=on_delivery,
-                )
+                try:
+                    # Keep your existing Kafka producer operation here.
+                    producer.produce(
+                        PAYMENT_EVENTS_TOPIC,
+                        key=transaction_id.encode("utf-8"),
+                        value=payload,
+                        callback=on_delivery,
+                    )
+
+                except Exception as exc:
+                    record_pipeline_failure_safely(
+                        component="kafka_producer",
+                        failure_type="KAFKA_PRODUCER_FAILURE",
+                        exception=exc,
+                        severity="CRITICAL",
+                        context={
+                            "topic": topic
+                        }
+                    )
+                    raise
                 stats["original_messages"] += 1
                 stats[kind] += 1
 

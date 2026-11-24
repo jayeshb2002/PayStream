@@ -10,6 +10,10 @@ from __future__ import annotations
 import time
 from src.orchestration.metrics_collector import record_batch_metrics_safely
 
+from src.orchestration.failure_tracker import (
+    record_pipeline_failure_safely
+)
+
 import argparse
 import logging
 import os
@@ -226,37 +230,43 @@ def write_late_batch(batch_df: DataFrame, batch_id: int, args: argparse.Namespac
     LOG.info("Wrote late-event batch %s", batch_id)
 
 
-def instrument_batch(callback, metric_name, *callback_args):
-    """
-    Wrap an existing foreachBatch callback.
 
-    Records input row count and processing duration
-    after the original callback succeeds.
-    """
-
+def instrument_batch(callback, metric_name):
     def wrapped(batch_df, batch_id):
-
         start_time = time.perf_counter()
 
-        record_count = batch_df.count()
+        try:
+            record_count = batch_df.count()
 
-        # Execute the existing processing and Kafka write.
-        callback(batch_df, batch_id, *callback_args)
+            callback(batch_df, batch_id)
 
-        duration_ms = int(
-            (time.perf_counter() - start_time) * 1000
-        )
+            duration_ms = int(
+                (time.perf_counter() - start_time) * 1000
+            )
 
-        record_batch_metrics_safely(
-            component="spark_processor",
-            batch_id=batch_id,
-            metrics={
-                metric_name: record_count,
-            },
-            processing_duration_ms=duration_ms,
-        )
+            record_batch_metrics_safely(
+                component="spark_processor",
+                batch_id=batch_id,
+                metrics={metric_name: record_count},
+                processing_duration_ms=duration_ms
+            )
+
+        except Exception as exc:
+            record_pipeline_failure_safely(
+                component="spark_processor",
+                failure_type="SPARK_BATCH_FAILURE",
+                exception=exc,
+                severity="CRITICAL",
+                context={
+                    "batch_id": batch_id,
+                    "metric_name": metric_name
+                }
+            )
+
+            raise
 
     return wrapped
+
 
 
 def start(args: argparse.Namespace) -> None:
@@ -290,12 +300,7 @@ def start(args: argparse.Namespace) -> None:
     invalid_query = (
         invalid.writeStream.queryName("paystream-invalid-to-dlq")
         .foreachBatch(
-            instrument_batch(
-                write_invalid_batch,
-                "records_rejected",
-                args.dlq_topic,
-                args.bootstrap_servers,
-            )
+            instrument_batch(write_invalid_batch, "records_rejected")
         )
         .option("checkpointLocation", os.path.join(args.checkpoint_root, "invalid"))
         .trigger(processingTime=f"{args.trigger_seconds} seconds")
@@ -316,12 +321,8 @@ def start(args: argparse.Namespace) -> None:
     late_query = (
         late_deduplicated.writeStream.queryName("paystream-late-events")
         .foreachBatch(
-            instrument_batch(
-                write_late_batch,
-                "records_late",
-                args,
-            )
-        )        
+            instrument_batch(write_late_batch, "records_late")
+        )      
         .option("checkpointLocation", os.path.join(args.checkpoint_root, "late"))
         .trigger(processingTime=f"{args.trigger_seconds} seconds")
         .start()
@@ -335,12 +336,8 @@ def start(args: argparse.Namespace) -> None:
     valid_query = (
         deduplicated.writeStream.queryName("paystream-valid-events")
         .foreachBatch(
-            instrument_batch(
-                write_processed_batch,
-                "records_processed",
-                args,
-            )
-        )        
+            instrument_batch(write_processed_batch, "records_processed")
+        )      
         .option("checkpointLocation", os.path.join(args.checkpoint_root, "valid"))
         .trigger(processingTime=f"{args.trigger_seconds} seconds")
         .start()
