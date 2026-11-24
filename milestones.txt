@@ -90,3 +90,17 @@
 16. Verified that `daily_payment_analytics_snapshot` contains analytics records.
 17. Verified that `bank_payment_analytics_snapshot` contains analytics records.
 18. Verified successful end-to-end analytics execution using the PostgreSQL database.
+
+### Milestone 4.4.1: Pipeline Health Monitoring — Implementation
+
+1. Implemented Kafka broker connectivity checks.
+2. Implemented PayStream PostgreSQL connectivity and query checks.
+3. Implemented Airflow metadata database connectivity checks.
+4. Added scheduler heartbeat freshness validation.
+5. Created the `paystream_m4_4_health_monitor` Airflow DAG.
+6. Configured independent infrastructure health-check tasks.
+7. Configured five-minute scheduled execution.
+8. Added task retries and execution timeouts.
+9. Implemented structured health-check logging.
+10. Pending: Verify all health-check tasks through a successful Airflow DAG run.
+
