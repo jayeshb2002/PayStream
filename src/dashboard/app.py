@@ -311,6 +311,108 @@ def render_failure_monitoring():
         )
 
 
+# =========================================================
+# Transaction Risk Analytics
+# =========================================================
+
+from src.dashboard.risk_queries import (
+    get_latest_risk_run,
+    get_latest_risk_scores,
+    get_risk_trends,
+)
+
+st.divider()
+
+st.header("Transaction Risk Analytics")
+
+try:
+    risk_run = get_latest_risk_run()
+
+    if risk_run.empty:
+        st.info(
+            "No risk analysis has been executed yet."
+        )
+    else:
+        latest_run = risk_run.iloc[0]
+
+        risk_scores = get_latest_risk_scores()
+        risk_trends = get_risk_trends()
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        col1.metric(
+            "Analysed Transactions",
+            int(latest_run["analysed_transactions"]),
+        )
+
+        col2.metric(
+            "Anomalies",
+            int(latest_run["anomaly_count"]),
+        )
+
+        col3.metric(
+            "High Risk",
+            int(latest_run["high_risk_count"]),
+        )
+
+        col4.metric(
+            "Critical Risk",
+            int(latest_run["critical_risk_count"]),
+        )
+
+        st.subheader("Risk Category Distribution")
+
+        if not risk_scores.empty:
+            distribution = (
+                risk_scores["risk_category"]
+                .value_counts()
+                .rename_axis("Risk Category")
+                .reset_index(name="Transactions")
+            )
+
+            st.bar_chart(
+                distribution.set_index("Risk Category")
+            )
+
+        st.subheader("Flagged Transactions")
+
+        if not risk_scores.empty:
+            flagged = risk_scores[
+                (risk_scores["is_anomaly"] == True)
+                | (risk_scores["risk_category"].isin(
+                    ["HIGH", "CRITICAL"]
+                ))
+            ].sort_values(
+                "risk_score",
+                ascending=False,
+            )
+
+            st.dataframe(
+                flagged,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+        st.subheader("Risk Analysis Trends")
+
+        if not risk_trends.empty:
+            st.line_chart(
+                risk_trends.set_index("analysis_date")[
+                    [
+                        "high_risk_transactions",
+                        "anomalies",
+                    ]
+                ]
+            )
+
+except Exception as exc:
+    st.error("Unable to load transaction risk analytics.")
+
+    with st.expander("Technical details"):
+        st.exception(exc)
+
+
+
 def main():
     st.title("PayStream Monitoring Dashboard")
 

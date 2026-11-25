@@ -195,3 +195,27 @@
 19. Integrated the dashboard service into the existing Docker Compose configuration.
 20. Configured dashboard access through port 8501.
 
+### Milestone 5.1: Transaction Feature Engineering
+
+1. Designed transaction-level feature engineering using PostgreSQL.
+2. Created the transaction_features table.
+3. Implemented transaction lifecycle event aggregation.
+4. Aggregated payment events using transaction_id.
+5. Extracted payment rail, currency and bank information.
+6. Calculated transaction amounts using the latest lifecycle event.
+7. Calculated total transaction event counts.
+8. Calculated distinct lifecycle event type counts.
+9. Calculated failed event counts.
+10. Identified the latest transaction event and status.
+11. Calculated first and last transaction event timestamps.
+12. Calculated transaction lifecycle duration in seconds.
+13. Implemented PostgreSQL-based transaction feature engineering.
+14. Implemented idempotent feature updates using ON CONFLICT.
+15. Added database indexes for transaction feature queries.
+16. Added unit tests for SQL execution and failure handling.
+17. Pending: Apply the transaction feature SQL migration.
+18. Pending: Execute transaction feature engineering.
+19. Pending: Verify transaction feature records in PostgreSQL.
+20. Pending: Verify idempotent execution.
+21. Pending: Execute and pass unit tests.
+
