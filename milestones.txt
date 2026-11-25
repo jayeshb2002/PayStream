@@ -195,46 +195,40 @@
 19. Integrated the dashboard service into the existing Docker Compose configuration.
 20. Configured dashboard access through port 8501.
 
-### Milestone 5.1: Transaction Feature Engineering
+#### 5.1: Transaction Feature Engineering — COMPLETED
 
-1. Designed transaction-level feature engineering using PostgreSQL.
-2. Created the transaction_features table.
-3. Implemented transaction lifecycle event aggregation.
-4. Aggregated payment events using transaction_id.
-5. Extracted payment rail, currency and bank information.
-6. Calculated transaction amounts using the latest lifecycle event.
-7. Calculated total transaction event counts.
-8. Calculated distinct lifecycle event type counts.
-9. Calculated failed event counts.
-10. Identified the latest transaction event and status.
-11. Calculated first and last transaction event timestamps.
-12. Calculated transaction lifecycle duration in seconds.
-13. Implemented PostgreSQL-based transaction feature engineering.
-14. Implemented idempotent feature updates using ON CONFLICT.
-15. Added database indexes for transaction feature queries.
-16. Added unit tests for SQL execution and failure handling.
-17. Pending: Apply the transaction feature SQL migration.
-18. Pending: Execute transaction feature engineering.
-19. Pending: Verify transaction feature records in PostgreSQL.
-20. Pending: Verify idempotent execution.
-21. Pending: Execute and pass unit tests.
+1. Implemented transaction-level feature engineering using PostgreSQL.
+2. Aggregated payment lifecycle events into individual transactions.
+3. Calculated transaction-level payment amounts using the latest lifecycle event.
+4. Extracted payment rail, currency and bank information.
+5. Calculated transaction event counts and distinct event types.
+6. Identified the latest transaction status.
+7. Calculated failed event counts.
+8. Calculated transaction lifecycle duration.
+9. Created the transaction_features table.
+10. Implemented idempotent feature updates using transaction_id.
+11. Added database indexes for transaction feature queries.
+12. Added and passed unit tests.
+13. Verified transaction feature records in PostgreSQL.
+14. Verified idempotent execution.
 
-### 5.2: Statistical Anomaly Detection
+#### 5.2: Statistical Anomaly Detection — COMPLETED
 
-1. Designed statistical anomaly detection using transaction-level features.
-2. Created the transaction_anomaly_results PostgreSQL table.
-3. Implemented payment rail-specific statistical baselines.
-4. Separated statistical baselines by payment rail and currency.
-5. Implemented median-based transaction amount analysis.
-6. Implemented Median Absolute Deviation (MAD).
-7. Added robust Z-score calculation using the 0.6745 scaling factor.
-8. Implemented robust Z-score anomaly detection with a configurable threshold.
-9. Added 95th-percentile transaction amount detection.
-10. Implemented zero-MAD fallback using percentile-based detection.
-11. Added minimum baseline sample size validation.
-12. Implemented anomaly classification and explanation reasons.
-13. Added baseline statistics and anomaly indicators to PostgreSQL.
-14. Implemented idempotent anomaly result updates using ON CONFLICT.
-15. Added database indexes for anomaly analysis queries.
-16. Added unit tests for statistical detection logic and error handling.
+15. Implemented payment rail-specific statistical baselines.
+16. Separated statistical baselines by payment rail and currency.
+17. Added median-based transaction amount analysis.
+18. Implemented Median Absolute Deviation (MAD).
+19. Added robust Z-score-based amount anomaly detection.
+20. Implemented 95th-percentile transaction amount detection.
+21. Added fallback anomaly detection for zero-MAD datasets.
+22. Added minimum baseline sample size validation.
+23. Implemented anomaly classification and explanation reasons.
+24. Created the transaction_anomaly_results table.
+25. Persisted baseline statistics and anomaly indicators.
+26. Implemented idempotent anomaly result updates.
+27. Added database indexes for anomaly analysis queries.
+28. Added and passed anomaly detection unit tests.
+29. Verified statistical baselines and anomaly results in PostgreSQL.
+30. Verified idempotent execution.
+
 
