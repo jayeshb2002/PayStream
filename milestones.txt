@@ -258,4 +258,35 @@
 23. Verified LOW, MEDIUM, HIGH and CRITICAL classifications.
 24. Verified generated risk explanations.
 
+### 5.4: Risk Results Storage
 
+1. Designed PostgreSQL schema for transaction risk result storage.
+2. Created risk_analysis_runs table to maintain risk analysis execution history.
+3. Created transaction_risk_results table to store transaction-level risk scores.
+4. Added support for LOW, MEDIUM, HIGH and CRITICAL risk categories.
+5. Implemented JSONB storage for explainable risk flags and descriptions.
+6. Added risk flag count and transaction flagged status.
+7. Added risk analysis execution duration tracking.
+8. Implemented foreign key relationships with transaction_features and risk_analysis_runs.
+9. Added composite primary key using run_id and transaction_id.
+10. Added indexes for transaction IDs, risk categories, risk scores and analysis runs.
+11. Created latest_transaction_risk view to retrieve the latest risk assessment for each transaction.
+12. Implemented reusable PostgreSQL risk storage module.
+13. Added risk result validation before database persistence.
+14. Implemented risk category distribution and analysis run summaries.
+15. Implemented transactional persistence of risk analysis results.
+16. Added idempotent risk result updates within an analysis run.
+17. Preserved historical transaction risk results across multiple analysis runs.
+18. Integrated PostgreSQL persistence with the transaction risk scoring pipeline.
+19. Added rollback handling for failed database operations.
+20. Added unit tests for risk result validation and persistence.
+21. Successfully applied PostgreSQL risk storage migration.
+22. Verified risk storage unit tests.
+23. Verified existing risk scoring unit tests.
+24. Successfully executed the integrated risk scoring and storage pipeline.
+25. Verified risk analysis run records in PostgreSQL.
+26. Verified transaction risk results and JSONB explanations.
+27. Verified risk category distribution.
+28. Verified latest_transaction_risk view.
+29. Verified historical results across multiple analysis runs.
+30. Verified transaction rollback on persistence failure.

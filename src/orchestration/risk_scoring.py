@@ -3,6 +3,12 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+from time import perf_counter
+from uuid import uuid4
+
+from src.orchestration.risk_storage import persist_risk_results
+
 import logging
 import os
 from collections import Counter
@@ -282,18 +288,61 @@ def run_risk_scoring(connection) -> dict[str, Any]:
     return summary
 
 
+
 def run_pipeline() -> dict[str, Any]:
-    """Open the database connection and execute risk scoring."""
+    """
+    Execute risk scoring and persist its results.
+
+    Each execution receives a unique run_id so that historical
+    analysis results are preserved.
+    """
 
     connection = None
+    started_at = datetime.now(timezone.utc)
+    start_time = perf_counter()
+    run_id = str(uuid4())
 
     try:
         connection = get_database_connection()
-        return run_risk_scoring(connection)
+
+        # Step 1: Calculate risk scores.
+        result = run_risk_scoring(connection)
+
+        # Step 2: Calculate execution duration.
+        execution_duration_ms = int(
+            (perf_counter() - start_time) * 1000
+        )
+
+        # Step 3: Persist run summary and transaction results.
+        storage_summary = persist_risk_results(
+            connection=connection,
+            run_id=run_id,
+            results=result["results"],
+            started_at=started_at,
+            execution_duration_ms=execution_duration_ms,
+        )
+
+        # Step 4: Return the combined result.
+        result.update(storage_summary)
+
+        logger.info(
+            "Risk analysis run %s completed successfully",
+            run_id,
+        )
+
+        return result
+
+    except Exception:
+        logger.exception(
+            "Risk scoring pipeline failed for run %s",
+            run_id,
+        )
+        raise
 
     finally:
         if connection is not None:
             connection.close()
+
 
 
 def main():
@@ -309,6 +358,11 @@ def main():
     print(f"Status: {result['status']}")
     print(f"Total transactions: {result['total_transactions']}")
     print(f"Flagged transactions: {result['flagged_transactions']}")
+    print(f"Run ID: {result['run_id']}")
+    print(
+        f"Execution duration: "
+        f"{result['execution_duration_ms']} ms"
+    )
 
     print("\nRisk Category Distribution")
 
