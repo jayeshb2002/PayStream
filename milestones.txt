@@ -219,3 +219,22 @@
 20. Pending: Verify idempotent execution.
 21. Pending: Execute and pass unit tests.
 
+### 5.2: Statistical Anomaly Detection
+
+1. Designed statistical anomaly detection using transaction-level features.
+2. Created the transaction_anomaly_results PostgreSQL table.
+3. Implemented payment rail-specific statistical baselines.
+4. Separated statistical baselines by payment rail and currency.
+5. Implemented median-based transaction amount analysis.
+6. Implemented Median Absolute Deviation (MAD).
+7. Added robust Z-score calculation using the 0.6745 scaling factor.
+8. Implemented robust Z-score anomaly detection with a configurable threshold.
+9. Added 95th-percentile transaction amount detection.
+10. Implemented zero-MAD fallback using percentile-based detection.
+11. Added minimum baseline sample size validation.
+12. Implemented anomaly classification and explanation reasons.
+13. Added baseline statistics and anomaly indicators to PostgreSQL.
+14. Implemented idempotent anomaly result updates using ON CONFLICT.
+15. Added database indexes for anomaly analysis queries.
+16. Added unit tests for statistical detection logic and error handling.
+
