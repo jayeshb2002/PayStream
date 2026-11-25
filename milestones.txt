@@ -231,4 +231,31 @@
 29. Verified statistical baselines and anomaly results in PostgreSQL.
 30. Verified idempotent execution.
 
+### 5.3: Transaction Risk Scoring
+
+1. Implemented an explainable transaction-level risk scoring engine.
+2. Integrated transaction features with statistical anomaly detection results.
+3. Added failed transaction status detection.
+4. Implemented multiple failed-event detection.
+5. Added robust Z-score anomaly risk detection.
+6. Added 95th-percentile transaction amount risk detection.
+7. Implemented excessive transaction lifecycle event detection.
+8. Added long transaction processing duration detection.
+9. Implemented configurable risk scoring weights.
+10. Implemented risk scores ranging from 0 to 100.
+11. Added LOW, MEDIUM, HIGH and CRITICAL risk categories.
+12. Generated explainable risk flags and descriptions.
+13. Implemented risk scoring for individual transactions.
+14. Added transaction-level risk summaries.
+15. Added risk category distribution calculations.
+16. Implemented highest-risk transaction reporting.
+17. Added unit tests for risk scoring rules and category boundaries.
+18. Verified risk scoring unit tests successfully.
+19. Verified transaction risk scoring pipeline execution.
+20. Verified risk scores for normal and failed transactions.
+21. Verified statistical anomaly risk scoring.
+22. Verified combined risk scores and score capping.
+23. Verified LOW, MEDIUM, HIGH and CRITICAL classifications.
+24. Verified generated risk explanations.
+
 
