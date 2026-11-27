@@ -532,3 +532,32 @@
 34. Verified duplicate prevention within a prediction run.
 35. Verified database transaction commit and rollback.
 36. Verified idempotent persistence behavior.
+
+#### 6.6: Integrate ML Predictions with Existing Risk Scoring
+
+1. Designed the statistical and ML risk integration architecture.
+2. Integrated existing transaction risk scores with ML predictions.
+3. Retrieved the latest completed ML prediction run.
+4. Joined statistical risk results with transaction-level ML predictions.
+5. Preserved original statistical risk scores.
+6. Preserved original statistical risk categories.
+7. Implemented configurable ML risk adjustment points.
+8. Added an initial 20-point adjustment for ML anomaly predictions.
+9. Retained existing risk scores when ML classifies a transaction as normal.
+10. Implemented integrated risk score calculation.
+11. Capped integrated risk scores at 100.
+12. Implemented integrated risk category classification.
+13. Added explainable integration reasons.
+14. Added ML prediction run references.
+15. Created the integrated_risk_analysis_runs PostgreSQL table.
+16. Created the transaction_integrated_risk_results PostgreSQL table.
+17. Implemented the latest_integrated_risk_results database view.
+18. Added indexes for integrated risk queries.
+19. Implemented transactional integrated risk persistence.
+20. Added idempotent writes using run_id and transaction_id.
+21. Added integration execution duration tracking.
+22. Implemented statistical and ML risk integration unit tests.
+23. Added validation for missing and duplicate transaction records.
+24. Added validation for ML prediction consistency.
+25. Added validation for integrated risk score boundaries.
+
