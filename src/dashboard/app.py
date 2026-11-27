@@ -7,6 +7,8 @@ import plotly.express as px
 import streamlit as st
 from dotenv import load_dotenv
 
+from src.dashboard.ml_dashboard import render_ml_dashboard
+
 from src.dashboard.queries import (
     get_dashboard_summary,
     get_processing_trends,
@@ -30,6 +32,7 @@ from src.dashboard.queries import (
     get_risk_analysis_trends,
 )
 
+from src.dashboard.ml_dashboard import render_ml_dashboard
 
 load_dotenv()
 
@@ -763,6 +766,10 @@ def main():
 
         # Milestone 5.6
         render_risk_dashboard()
+
+        st.divider()
+
+        render_ml_dashboard()
 
         st.divider()
 

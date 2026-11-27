@@ -596,3 +596,21 @@
 31. Verified integrated risk analysis through Airflow.
 32. Verified PostgreSQL ML prediction and integrated risk records.
 
+### Milestone 6.8: ML Dashboard Integration
+
+1. Created a dedicated ML anomaly detection dashboard module.
+2. Integrated ML prediction results into the existing Streamlit dashboard.
+3. Added total analysed transaction KPI.
+4. Added anomalous transaction count KPI.
+5. Added normal transaction count KPI.
+6. Added ML anomaly rate KPI.
+7. Added prediction distribution visualization.
+8. Added ML anomaly score distribution histogram.
+9. Added configured anomaly threshold visualization.
+10. Added highest-scoring anomalous transaction table.
+11. Added statistical risk versus ML-integrated risk comparison.
+12. Added integrated risk category distribution.
+13. Added ML pipeline execution history.
+14. Added transaction-level ML prediction inspection.
+15. Added handling for empty ML prediction datasets.
+16. Preserved existing pipeline monitoring and statistical risk dashboards.
