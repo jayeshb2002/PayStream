@@ -42,7 +42,17 @@ def load_ml_runs() -> pd.DataFrame:
     try:
         return pd.read_sql_query(
             """
-            SELECT *
+            SELECT
+                run_id,
+                model_name,
+                threshold,
+                percentile,
+                total_transactions,
+                anomaly_count,
+                normal_count,
+                anomaly_rate_percent AS anomaly_rate,
+                duration_ms,
+                completed_at
             FROM ml_prediction_runs
             WHERE status = 'COMPLETED'
             ORDER BY completed_at DESC
