@@ -319,3 +319,46 @@
 24. Verified risk category distribution after DAG execution.
 25. Verified successful end-to-end execution of the complete workflow.
 
+### 5.6: Risk Dashboard Integration
+
+1. Extended the existing PayStream Streamlit monitoring dashboard.
+2. Integrated transaction risk results from PostgreSQL.
+3. Added transaction risk KPI cards.
+4. Displayed total transaction count.
+5. Displayed flagged transaction count.
+6. Added high-risk and critical-risk transaction metrics.
+7. Added average transaction risk score.
+8. Implemented transaction risk category distribution visualization.
+9. Added LOW, MEDIUM, HIGH and CRITICAL category breakdown.
+10. Implemented historical risk analysis trend visualization.
+11. Integrated risk analysis execution history.
+12. Added highest-risk transaction listing.
+13. Displayed transaction risk scores and categories.
+14. Added transaction-level risk investigation.
+15. Displayed explainable risk flags and descriptions.
+16. Integrated transaction risk assessment history.
+17. Added PostgreSQL queries for risk dashboard analytics.
+18. Integrated the latest_transaction_risk database view.
+19. Integrated risk_analysis_runs and transaction_risk_results tables.
+20. Extended the existing dashboard without creating a separate application.
+21. Rebuilt and restarted the Streamlit dashboard successfully.
+22. Verified dashboard startup without errors.
+23. Verified transaction risk KPI calculations.
+24. Verified risk category distribution chart.
+25. Verified historical risk trend visualization.
+26. Verified highest-risk transaction listing.
+27. Verified transaction-level risk explanations.
+28. Verified transaction risk assessment history.
+29. Verified dashboard refresh and database connectivity.
+30. Verified complete risk dashboard integration.
+
+### Milestone 5: Transaction Analytics & Anomaly Detection — COMPLETED
+
+1. Completed transaction feature engineering.
+2. Implemented statistical anomaly detection.
+3. Implemented explainable transaction risk scoring.
+4. Implemented persistent transaction risk result storage.
+5. Automated risk analysis using Apache Airflow.
+6. Integrated transaction risk analytics into the Streamlit dashboard.
+7. Verified end-to-end transaction risk analysis workflow.
+

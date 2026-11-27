@@ -17,6 +17,19 @@ from src.dashboard.queries import (
     get_live_component_health
 )
 
+import json
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+from src.dashboard.queries import (
+    get_risk_dashboard_summary,
+    get_risk_category_distribution,
+    get_highest_risk_transactions,
+    get_transaction_risk_details,
+    get_risk_analysis_trends,
+)
+
 
 load_dotenv()
 
@@ -412,6 +425,288 @@ except Exception as exc:
         st.exception(exc)
 
 
+def format_risk_flags(flags):
+    """Convert JSONB risk explanations into readable text."""
+
+    if flags is None:
+        return "No risk flags"
+
+    if isinstance(flags, str):
+        try:
+            flags = json.loads(flags)
+        except (ValueError, TypeError):
+            return flags
+
+    if not isinstance(flags, list) or not flags:
+        return "No risk flags"
+
+    return "\n".join(
+        f"- {flag.get('flag', 'UNKNOWN')}: "
+        f"{flag.get('description', '')} "
+        f"(+{flag.get('points', 0)} points)"
+        for flag in flags
+    )
+
+
+def render_risk_kpis():
+    """Display the latest transaction risk KPIs."""
+
+    st.subheader("Transaction Risk Overview")
+
+    summary = get_risk_dashboard_summary()
+
+    if summary.empty:
+        st.info("No transaction risk results available yet.")
+        return
+
+    row = summary.iloc[0]
+
+    total = int(row["total_transactions"] or 0)
+    flagged = int(row["flagged_transactions"] or 0)
+    high = int(row["high_risk_transactions"] or 0)
+    critical = int(row["critical_risk_transactions"] or 0)
+    average = row["average_risk_score"]
+
+    average = float(average) if pd.notna(average) else 0.0
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    col1.metric("Total Transactions", f"{total:,}")
+    col2.metric("Flagged Transactions", f"{flagged:,}")
+    col3.metric("High Risk", f"{high:,}")
+    col4.metric("Critical Risk", f"{critical:,}")
+    col5.metric("Average Risk Score", f"{average:.2f}/100")
+
+
+def render_risk_distribution():
+    """Display the latest risk category distribution."""
+
+    st.subheader("Risk Category Distribution")
+
+    distribution = get_risk_category_distribution()
+
+    if distribution.empty:
+        st.info("No risk category data available.")
+        return
+
+    fig = px.pie(
+        distribution,
+        names="risk_category",
+        values="transaction_count",
+        title="Transaction Distribution by Risk Category",
+        hole=0.45,
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def render_risk_trends():
+    """Display changes in risk distribution across analysis runs."""
+
+    st.subheader("Risk Analysis Trends")
+
+    trends = get_risk_analysis_trends(limit=30)
+
+    if trends.empty:
+        st.info("No risk analysis history available.")
+        return
+
+    trends = trends.sort_values("completed_at")
+
+    category_columns = [
+        "low_risk_count",
+        "medium_risk_count",
+        "high_risk_count",
+        "critical_risk_count",
+    ]
+
+    chart_data = trends[
+        ["completed_at"] + category_columns
+    ].copy()
+
+    chart_data = chart_data.rename(
+        columns={
+            "low_risk_count": "LOW",
+            "medium_risk_count": "MEDIUM",
+            "high_risk_count": "HIGH",
+            "critical_risk_count": "CRITICAL",
+        }
+    )
+
+    chart_data = chart_data.melt(
+        id_vars=["completed_at"],
+        var_name="Risk Category",
+        value_name="Transactions",
+    )
+
+    fig = px.line(
+        chart_data,
+        x="completed_at",
+        y="Transactions",
+        color="Risk Category",
+        markers=True,
+        title="Risk Category Counts Across Analysis Runs",
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    run_history = trends[
+        [
+            "completed_at",
+            "total_transactions",
+            "flagged_transactions",
+            "low_risk_count",
+            "medium_risk_count",
+            "high_risk_count",
+            "critical_risk_count",
+        ]
+    ].copy()
+
+    st.dataframe(
+        run_history.sort_values(
+            "completed_at",
+            ascending=False,
+        ),
+        use_container_width=True,
+        hide_index=True,
+    )
+
+
+def render_highest_risk_transactions():
+    """Display the highest-risk transactions and their explanations."""
+
+    st.subheader("Highest-Risk Transactions")
+
+    transactions = get_highest_risk_transactions(limit=20)
+
+    if transactions.empty:
+        st.info("No transaction risk results available.")
+        return
+
+    display_data = transactions[
+        [
+            "transaction_id",
+            "risk_score",
+            "risk_category",
+            "payment_rail",
+            "amount_minor",
+            "currency",
+            "latest_status",
+            "risk_flag_count",
+            "is_flagged",
+        ]
+    ].copy()
+
+    display_data["amount"] = (
+        display_data["amount_minor"].fillna(0) / 100
+    ).round(2)
+
+    display_data = display_data.drop(columns=["amount_minor"])
+
+    display_data = display_data.rename(
+        columns={
+            "transaction_id": "Transaction ID",
+            "risk_score": "Risk Score",
+            "risk_category": "Risk Category",
+            "payment_rail": "Payment Rail",
+            "currency": "Currency",
+            "latest_status": "Latest Status",
+            "risk_flag_count": "Risk Flags",
+            "is_flagged": "Flagged",
+        }
+    )
+
+    st.dataframe(
+        display_data,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.caption(
+        "Amounts are displayed in major currency units. "
+        "For INR, amount_minor is stored in paise."
+    )
+
+    transaction_ids = transactions[
+        "transaction_id"
+    ].astype(str).tolist()
+
+    selected_transaction = st.selectbox(
+        "Investigate a transaction",
+        transaction_ids,
+        key="risk_transaction_selector",
+    )
+
+    if selected_transaction:
+        selected = transactions[
+            transactions["transaction_id"].astype(str)
+            == selected_transaction
+        ]
+
+        if not selected.empty:
+            row = selected.iloc[0]
+
+            st.markdown("#### Transaction Risk Explanation")
+
+            st.write(f"**Transaction:** {selected_transaction}")
+            st.write(f"**Risk Score:** {row['risk_score']}/100")
+            st.write(f"**Risk Category:** {row['risk_category']}")
+
+            st.write(
+                format_risk_flags(row["risk_flags"])
+            )
+
+            with st.expander("View complete risk assessment history"):
+                history = get_transaction_risk_details(
+                    selected_transaction
+                )
+
+                if history.empty:
+                    st.info("No historical assessments found.")
+                else:
+                    history = history.copy()
+
+                    history["risk_flags"] = history[
+                        "risk_flags"
+                    ].apply(format_risk_flags)
+
+                    st.dataframe(
+                        history,
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+
+
+def render_risk_dashboard():
+    """Render the complete transaction risk dashboard."""
+
+    st.header("Transaction Risk Monitoring")
+
+    try:
+        render_risk_kpis()
+
+        st.divider()
+
+        render_risk_distribution()
+
+        st.divider()
+
+        render_risk_trends()
+
+        st.divider()
+
+        render_highest_risk_transactions()
+
+    except Exception as exc:
+        logger.exception("Unable to render risk dashboard")
+
+        st.error(
+            "Unable to load transaction risk monitoring data. "
+            "Check the database connection and risk analysis tables."
+        )
+        st.caption(str(exc))
+
+
 
 def main():
     st.title("PayStream Monitoring Dashboard")
@@ -463,6 +758,11 @@ def main():
         st.divider()
 
         render_failure_monitoring()
+
+        st.divider()
+
+        # Milestone 5.6
+        render_risk_dashboard()
 
         st.divider()
 

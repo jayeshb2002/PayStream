@@ -299,3 +299,143 @@ def get_live_component_health():
         "PayStream PostgreSQL": postgres,
         "Airflow Metadata DB": airflow_db
     }
+
+
+def get_risk_dashboard_summary():
+    """Return high-level KPIs from the latest risk assessment."""
+
+    query = """
+        SELECT
+            COUNT(*) AS total_transactions,
+
+            COUNT(*) FILTER (
+                WHERE is_flagged = TRUE
+            ) AS flagged_transactions,
+
+            COUNT(*) FILTER (
+                WHERE risk_category = 'HIGH'
+            ) AS high_risk_transactions,
+
+            COUNT(*) FILTER (
+                WHERE risk_category = 'CRITICAL'
+            ) AS critical_risk_transactions,
+
+            ROUND(AVG(risk_score)::NUMERIC, 2)
+                AS average_risk_score
+
+        FROM latest_transaction_risk;
+    """
+
+    return read_query(query)
+
+
+def get_risk_category_distribution():
+    """Return the latest transaction risk category distribution."""
+
+    query = """
+        SELECT
+            risk_category,
+            COUNT(*) AS transaction_count
+
+        FROM latest_transaction_risk
+
+        GROUP BY risk_category
+
+        ORDER BY
+            CASE risk_category
+                WHEN 'LOW' THEN 1
+                WHEN 'MEDIUM' THEN 2
+                WHEN 'HIGH' THEN 3
+                WHEN 'CRITICAL' THEN 4
+            END;
+    """
+
+    return read_query(query)
+
+
+def get_highest_risk_transactions(limit=20):
+    """Return the highest-risk transactions."""
+
+    limit = max(1, min(int(limit), 100))
+
+    query = f"""
+        SELECT
+            r.transaction_id,
+            r.risk_score,
+            r.risk_category,
+            r.risk_flag_count,
+            r.is_flagged,
+            r.risk_flags,
+            r.analyzed_at,
+
+            f.payment_rail,
+            f.currency,
+            f.amount_minor,
+            f.latest_status,
+            f.failed_event_count
+
+        FROM latest_transaction_risk r
+
+        INNER JOIN transaction_features f
+            ON r.transaction_id = f.transaction_id
+
+        ORDER BY
+            r.risk_score DESC,
+            r.analyzed_at DESC
+
+        LIMIT {limit};
+    """
+
+    return read_query(query)
+
+
+def get_transaction_risk_details(transaction_id):
+    """Return risk assessment history for a transaction."""
+
+    safe_transaction_id = str(transaction_id).replace("'", "''")
+
+    query = f"""
+        SELECT
+            r.run_id,
+            r.transaction_id,
+            r.risk_score,
+            r.risk_category,
+            r.risk_flags,
+            r.risk_flag_count,
+            r.is_flagged,
+            r.analyzed_at
+
+        FROM transaction_risk_results r
+
+        WHERE r.transaction_id = '{safe_transaction_id}'
+
+        ORDER BY r.analyzed_at DESC;
+    """
+
+    return read_query(query)
+
+
+def get_risk_analysis_trends(limit=30):
+    """Return risk category counts across recent analysis runs."""
+
+    limit = max(1, min(int(limit), 100))
+
+    query = f"""
+        SELECT
+            run_id,
+            completed_at,
+            total_transactions,
+            flagged_transactions,
+            low_risk_count,
+            medium_risk_count,
+            high_risk_count,
+            critical_risk_count
+
+        FROM risk_analysis_runs
+
+        ORDER BY completed_at DESC
+
+        LIMIT {limit};
+    """
+
+    return read_query(query)
