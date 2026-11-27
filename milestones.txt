@@ -493,3 +493,42 @@
 24. Verified configurable threshold execution.
 25. Verified one prediction per transaction.
 26. Verified prediction output and summary statistics.
+
+#### 6.5: Persist ML Predictions in PostgreSQL
+
+1. Designed the ML prediction persistence architecture.
+2. Created the ml_prediction_runs PostgreSQL table.
+3. Added run-level model metadata storage.
+4. Added selected threshold and percentile storage.
+5. Added transaction count and anomaly count tracking.
+6. Added normal transaction count tracking.
+7. Added anomaly rate calculation and storage.
+8. Added prediction execution duration tracking.
+9. Created the transaction_ml_predictions PostgreSQL table.
+10. Added transaction-level anomaly score storage.
+11. Added ML anomaly classification storage.
+12. Added selected threshold storage for individual predictions.
+13. Added model name and percentile metadata.
+14. Added prediction timestamps.
+15. Implemented composite primary key using run_id and transaction_id.
+16. Added foreign key relationship with transaction_ml_dataset.
+17. Added foreign key relationship with ml_prediction_runs.
+18. Implemented the latest_ml_predictions database view.
+19. Added indexes for transaction ID, run ID and anomaly classification.
+20. Implemented the ML prediction storage module.
+21. Integrated transaction-level ML predictions with PostgreSQL.
+22. Implemented transactional database writes.
+23. Implemented rollback handling for failed persistence.
+24. Implemented idempotent prediction upserts.
+25. Added prediction run summary generation.
+26. Added validation for prediction datasets.
+27. Added validation for prediction summary counts.
+28. Implemented ML prediction storage unit tests.
+29. Verified SQL migration and table creation.
+30. Verified prediction run persistence.
+31. Verified transaction-level prediction persistence.
+32. Verified latest prediction view.
+33. Verified prediction category distribution.
+34. Verified duplicate prevention within a prediction run.
+35. Verified database transaction commit and rollback.
+36. Verified idempotent persistence behavior.
