@@ -396,3 +396,35 @@
 28. Verified unit tests successfully.
 29. Verified idempotent dataset preparation.
 
+#### 6.2: Train Isolation Forest Anomaly Detection Model
+
+1. Introduced Scikit-learn for machine learning development.
+2. Added Joblib for model serialization.
+3. Implemented the Isolation Forest model training module.
+4. Integrated ML training dataset loading from PostgreSQL.
+5. Implemented training dataset validation.
+6. Added minimum training dataset size validation.
+7. Selected numerical transaction features.
+8. Selected categorical transaction features.
+9. Implemented numerical missing value handling.
+10. Implemented categorical missing value handling.
+11. Applied logarithmic transformation to numerical features.
+12. Implemented one-hot encoding for categorical features.
+13. Built a reusable Scikit-learn preprocessing pipeline.
+14. Trained an Isolation Forest anomaly detection model.
+15. Configured reproducible model training using a fixed random state.
+16. Configured model estimators and automatic contamination handling.
+17. Excluded statistical anomaly results from ML model inputs.
+18. Generated anomaly predictions for training transactions.
+19. Calculated model decision scores.
+20. Saved the trained model using Joblib.
+21. Generated model training metadata.
+22. Recorded training dataset size and prediction distribution.
+23. Added model training unit tests.
+24. Added generated model artifacts to gitignore.
+25. Verified ML model training unit tests.
+26. Verified successful Isolation Forest training.
+27. Verified generated model artifact.
+28. Verified model metadata.
+29. Verified model loading using Joblib.
+30. Verified training dataset integration.

@@ -7,3 +7,6 @@ __pycache__/
 .DS_Store
 data/checkpoints/
 logs/
+# Machine Learning model artifacts
+models/*.joblib
+models/*.json
