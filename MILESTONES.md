@@ -1,4 +1,8 @@
-# PayStream – Project Progress
+# PayStream Project Milestones
+
+This implementation checklist is a historical progress record. For current
+architecture, setup, operations, and ML workflow instructions, see
+[README.md](README.md) and the guides in [docs/](docs/).
 
 ## Milestone 1: Kafka-Based Payment Ingestion
 
