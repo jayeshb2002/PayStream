@@ -10,3 +10,4 @@ logs/
 # Machine Learning model artifacts
 models/*.joblib
 models/*.json
+/PayStream — Technical Architecture.pdf
