@@ -428,3 +428,68 @@
 28. Verified model metadata.
 29. Verified model loading using Joblib.
 30. Verified training dataset integration.
+
+#### 6.3: Model Evaluation and Threshold Optimization
+
+1. Implemented the Isolation Forest model evaluation module.
+2. Integrated trained model loading using Joblib.
+3. Loaded transaction features from the PostgreSQL ML dataset.
+4. Reused the feature preprocessing pipeline from model training.
+5. Generated anomaly scores for prepared transactions.
+6. Standardized anomaly score direction so higher scores indicate greater anomaly.
+7. Evaluated multiple candidate score percentiles.
+8. Calculated anomaly thresholds for the 90th percentile.
+9. Calculated anomaly thresholds for the 95th percentile.
+10. Calculated anomaly thresholds for the 97.5th percentile.
+11. Calculated anomaly thresholds for the 99th percentile.
+12. Calculated flagged transaction counts for candidate thresholds.
+13. Calculated transaction alert rates.
+14. Compared ML anomaly predictions with statistical anomaly results.
+15. Calculated overlap and Jaccard agreement between detectors.
+16. Implemented configurable percentile-based threshold selection.
+17. Selected the default 95th percentile threshold.
+18. Generated ML evaluation summary statistics.
+19. Persisted model evaluation reports in JSON format.
+20. Persisted selected anomaly threshold configuration.
+21. Added evaluation dataset validation.
+22. Added configurable threshold selection through CLI arguments.
+23. Implemented ML model evaluation unit tests.
+24. Documented the absence of ground-truth fraud labels.
+25. Documented the limitations of in-sample evaluation.
+26. Verified ML evaluation unit tests.
+27. Verified anomaly score generation.
+28. Verified candidate threshold calculations.
+29. Verified statistical detector comparison.
+30. Verified selected threshold configuration.
+31. Verified evaluation report generation.
+32. Verified threshold JSON generation.
+33. Verified configurable percentile execution.
+
+#### 6.4: Transaction-Level ML Prediction
+
+1. Implemented the transaction-level ML prediction module.
+2. Integrated trained Isolation Forest model loading.
+3. Integrated optimized anomaly threshold configuration.
+4. Loaded transaction features from PostgreSQL.
+5. Reused the ML model preprocessing pipeline.
+6. Generated transaction-level anomaly scores.
+7. Standardized anomaly score direction.
+8. Implemented configurable threshold-based classification.
+9. Classified transactions as NORMAL or ANOMALY.
+10. Included transaction identifiers in prediction results.
+11. Included anomaly scores in prediction results.
+12. Included selected threshold in prediction results.
+13. Included model metadata in prediction results.
+14. Added prediction timestamps.
+15. Implemented model artifact validation.
+16. Implemented threshold configuration validation.
+17. Added transaction ID validation.
+18. Added duplicate transaction detection.
+19. Added empty dataset validation.
+20. Implemented ML prediction unit tests.
+21. Verified model and threshold loading.
+22. Verified transaction-level anomaly score generation.
+23. Verified NORMAL and ANOMALY classifications.
+24. Verified configurable threshold execution.
+25. Verified one prediction per transaction.
+26. Verified prediction output and summary statistics.

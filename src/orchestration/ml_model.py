@@ -66,7 +66,7 @@ def get_database_connection():
 def load_training_data(connection):
     """Load prepared ML features from PostgreSQL."""
 
-    query = """
+    query =  """
         SELECT
             transaction_id,
             payment_rail,
@@ -76,7 +76,8 @@ def load_training_data(connection):
             event_count,
             distinct_event_type_count,
             failed_event_count,
-            lifecycle_duration_seconds
+            lifecycle_duration_seconds,
+            statistical_is_anomaly
 
         FROM transaction_ml_dataset
 
