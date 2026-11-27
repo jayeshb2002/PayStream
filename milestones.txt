@@ -290,3 +290,32 @@
 28. Verified latest_transaction_risk view.
 29. Verified historical results across multiple analysis runs.
 30. Verified transaction rollback on persistence failure.
+
+### 5.5: Automated Risk Analysis
+
+1. Designed an automated transaction risk analysis workflow using Apache Airflow.
+2. Created paystream_m5_5_automated_risk_analysis DAG.
+3. Integrated transaction feature engineering with Airflow.
+4. Integrated statistical anomaly detection with Airflow.
+5. Integrated transaction risk scoring with Airflow.
+6. Integrated risk result persistence with the automated workflow.
+7. Implemented sequential execution of all risk analysis stages.
+8. Configured automated workflow execution every 30 minutes.
+9. Configured task retries and retry delays.
+10. Implemented protection against overlapping DAG executions.
+11. Configured task execution timeouts.
+12. Integrated Airflow tasks with the PayStream PostgreSQL database.
+13. Reused existing transaction feature engineering and anomaly detection modules.
+14. Reused the existing transaction risk scoring and storage modules.
+15. Preserved historical risk analysis results across scheduled executions.
+16. Verified Airflow DAG imports without errors.
+17. Verified transaction feature engineering execution inside Airflow.
+18. Verified statistical anomaly detection execution inside Airflow.
+19. Verified transaction risk scoring execution inside Airflow.
+20. Verified sequential task dependencies.
+21. Verified automated risk analysis DAG execution.
+22. Verified task retry behaviour.
+23. Verified risk analysis run records in PostgreSQL.
+24. Verified risk category distribution after DAG execution.
+25. Verified successful end-to-end execution of the complete workflow.
+
