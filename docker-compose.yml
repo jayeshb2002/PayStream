@@ -72,7 +72,10 @@ services:
     restart: unless-stopped
 
   airflow-init:
-    image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.10.5-python3.11}
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    image: ${AIRFLOW_IMAGE_NAME:-paystream-airflow:2.10.5-python3.11}
     container_name: paystream-airflow-init
     profiles: ["airflow"]
     depends_on:
@@ -98,6 +101,7 @@ services:
       - ./src:/opt/airflow/src
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+      - ./models:/opt/airflow/models
     entrypoint: /bin/bash
     command:
       - -c
@@ -113,7 +117,10 @@ services:
     restart: "no"
 
   airflow-webserver:
-    image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.10.5-python3.11}
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    image: ${AIRFLOW_IMAGE_NAME:-paystream-airflow:2.10.5-python3.11}
     container_name: paystream-airflow-webserver
     profiles: ["airflow"]
     depends_on:
@@ -133,7 +140,10 @@ services:
     restart: unless-stopped
 
   airflow-scheduler:
-    image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.10.5-python3.11}
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    image: ${AIRFLOW_IMAGE_NAME:-paystream-airflow:2.10.5-python3.11}
     container_name: paystream-airflow-scheduler
     profiles: ["airflow"]
     depends_on:

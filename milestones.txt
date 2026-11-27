@@ -561,3 +561,38 @@
 24. Added validation for ML prediction consistency.
 25. Added validation for integrated risk score boundaries.
 
+#### 6.7: Automate ML Pipeline Using Airflow
+
+1. Designed the automated ML fraud detection pipeline architecture.
+2. Created a custom Airflow Docker image for ML workloads.
+3. Added dedicated Airflow ML dependency requirements.
+4. Integrated Scikit-learn into the Airflow environment.
+5. Integrated Joblib into the Airflow environment.
+6. Configured Airflow-compatible dependency installation constraints.
+7. Mounted the shared ML model artifacts directory into Airflow containers.
+8. Created the paystream_m6_7_ml_pipeline DAG.
+9. Configured daily ML pipeline execution at 02:00 UTC.
+10. Configured sequential ML pipeline task dependencies.
+11. Added transaction ML dataset preparation task.
+12. Added Isolation Forest model training task.
+13. Added ML model evaluation and threshold optimization task.
+14. Added transaction-level ML prediction persistence task.
+15. Added integrated transaction risk analysis task.
+16. Configured automatic task retries.
+17. Configured task retry delays.
+18. Configured task execution timeouts.
+19. Configured maximum active DAG runs.
+20. Disabled historical DAG catchup execution.
+21. Integrated existing Python ML modules with Airflow BashOperator tasks.
+22. Configured shared model and threshold artifacts across Airflow tasks.
+23. Rebuilt the Airflow Docker services with ML dependencies.
+24. Verified Airflow service startup.
+25. Verified ML DAG registration.
+26. Verified DAG import without errors.
+27. Verified sequential task execution.
+28. Verified successful ML model training through Airflow.
+29. Verified threshold generation through Airflow.
+30. Verified ML prediction persistence through Airflow.
+31. Verified integrated risk analysis through Airflow.
+32. Verified PostgreSQL ML prediction and integrated risk records.
+
