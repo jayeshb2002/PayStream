@@ -362,3 +362,37 @@
 6. Integrated transaction risk analytics into the Streamlit dashboard.
 7. Verified end-to-end transaction risk analysis workflow.
 
+### Milestone 6: Machine Learning-Based Fraud Detection
+
+#### 6.1: ML Feature Dataset Preparation
+
+1. Designed the machine learning dataset preparation architecture.
+2. Created the transaction_ml_dataset PostgreSQL table.
+3. Added database indexes for ML dataset queries.
+4. Integrated transaction_features with the ML dataset.
+5. Integrated transaction_anomaly_results with the ML dataset.
+6. Implemented transaction-level ML feature extraction.
+7. Prepared transaction amount features using integer paise.
+8. Included payment rail and currency information.
+9. Included transaction lifecycle event counts.
+10. Included distinct event type counts.
+11. Included failed transaction event counts.
+12. Included transaction lifecycle duration.
+13. Included latest transaction status.
+14. Preserved statistical anomaly results for model comparison.
+15. Kept statistical anomaly indicators separate from ML training inputs.
+16. Implemented idempotent dataset updates using transaction_id.
+17. Implemented PostgreSQL transaction handling and rollback.
+18. Added dataset preparation execution time measurement.
+19. Added dataset preparation summary statistics.
+20. Implemented ML dataset preparation unit tests.
+21. Verified database migration and table creation.
+22. Verified successful ML dataset preparation.
+23. Verified dataset record counts.
+24. Verified transaction feature values.
+25. Verified statistical anomaly reference values.
+26. Verified payment rail-wise dataset distribution.
+27. Verified required feature completeness.
+28. Verified unit tests successfully.
+29. Verified idempotent dataset preparation.
+
